@@ -1,0 +1,10 @@
+[server]
+%{ for name, node in hosts ~}
+${name} ansible_host=${node.ipv4_address} ansible_user=admin ansible_become=true
+%{ endfor ~}
+
+[agent]
+
+[k3s_cluster:children]
+server
+agent

@@ -1,0 +1,15 @@
+hcloud_token    = "my-hetzner-api-token"
+ssh_public_keys = ["ssh-ed25519 AAAA... me@laptop"]
+ssh_private_key_path = "~/.ssh/id_ed25519"
+allowed_ssh_ips = ["0.0.0.0/0"] 
+
+
+cloudflare_api_token = "my-cloudflare-token" 
+dns_zone_id = "abcd1234"
+dns_zone_name = "example.com"
+
+servers = {
+    "server"  = {}
+  }
+
+service_dns_name = "selfhost"

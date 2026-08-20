@@ -1,0 +1,24 @@
+#cloud-config
+# Minimal bootstrap for Rocky Linux 10 (Ansible Ready)
+
+hostname: ${node_name}
+preserve_hostname: false
+fqdn: ${node_name}
+
+# Создаем пользователя admin с sudo без пароля
+users:
+  - name: admin
+    groups: [wheel]
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+%{ for key in ssh_public_keys ~}
+      - ${key}
+%{ endfor ~}
+
+# Если нужно отрубить пароли прямо на старте
+ssh_pwauth: false
+
+# Обновляем контексты SELinux, если затронули систему
+runcmd:
+  - restorecon -R /home/admin/.ssh
