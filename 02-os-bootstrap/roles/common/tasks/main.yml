@@ -1,0 +1,66 @@
+---
+- name: Install base system and performance packages
+  ansible.builtin.dnf:
+    name:
+      - epel-release
+      - dnf-automatic
+      - policycoreutils-python-utils
+      - jq
+      - tar
+      - tuned
+      - "kernel-modules-extra-{{ ansible_kernel }}"  
+    state: present
+
+- name: Enable and configure TuneD for network performance
+  block:
+    - name: Ensure tuned is running
+      ansible.builtin.systemd:
+        name: tuned
+        state: started
+        enabled: true
+
+    - name: Apply network-throughput profile
+      ansible.builtin.command: tuned-adm profile network-throughput
+      changed_when: false 
+      
+- name: Configure dnf-automatic for security updates only
+  ansible.builtin.ini_file:
+    path: /etc/dnf/automatic.conf
+    section: commands
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0644'
+  loop:
+    - { option: 'upgrade_type', value: 'security' }
+    - { option: 'apply_updates', value: 'yes' }
+
+- name: Enable dnf-automatic timer
+  ansible.builtin.systemd:
+    name: dnf-automatic.timer
+    state: started
+    enabled: true
+
+- name: Ensure dnf-utils is installed for reboot check
+  ansible.builtin.dnf:
+    name: dnf-utils
+    state: present
+
+- name: Check if system reboot is required
+  ansible.builtin.command: needs-restarting -r
+  register: reboot_required
+  failed_when: false
+  changed_when: false
+
+- name: Debug reboot status
+  ansible.builtin.debug:
+    msg: "Reboot is required because kernel or core packages were updated."
+  when: reboot_required.rc == 1
+
+- name: Reboot node to apply new kernel and modules
+  ansible.builtin.reboot:
+    msg: "Rebooting automatically due to kernel update..."
+    connect_timeout: 5
+    reboot_timeout: 300
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+  when: reboot_required.rc == 1

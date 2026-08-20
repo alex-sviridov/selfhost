@@ -1,0 +1,129 @@
+---
+- name: Monthly Rocky Linux system and kernel patching
+  hosts: k3s_cluster
+  become: true
+  serial: 1
+  max_fail_percentage: 0
+
+  vars:
+    patch_evidence_dir: /var/log/patching
+    reboot_timeout: 600
+
+  tasks:
+    - name: Ensure evidence directory exists
+      ansible.builtin.file:
+        path: "{{ patch_evidence_dir }}"
+        state: directory
+        mode: '0750'
+
+    - name: Capture running kernel before patching
+      ansible.builtin.command: uname -r
+      register: kernel_before
+      changed_when: false
+
+    - name: Record pre-patch package state (RPM)
+      ansible.builtin.shell: rpm -qa --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort > {{ patch_evidence_dir }}/pre_patch_{{ ansible_date_time.date }}.log
+      changed_when: false
+
+    - name: Check disk space before patching
+      ansible.builtin.shell: df -h / | awk 'NR==2{print $5}' | tr -d '%'
+      register: disk_usage
+      changed_when: false
+
+    - name: Fail early if disk usage is dangerously high
+      ansible.builtin.fail:
+        msg: "Root disk usage is {{ disk_usage.stdout }}%, too high to patch safely"
+      when: disk_usage.stdout | int > 85
+
+    - name: Upgrade all packages via DNF
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+      register: dnf_upgrade_result
+
+    - name: Record post-upgrade package state (RPM)
+      ansible.builtin.shell: rpm -qa --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n' | sort > {{ patch_evidence_dir }}/post_patch_{{ ansible_date_time.date }}.log
+      changed_when: false
+
+    - name: Ensure dnf-plugins-core is installed (for needs-restarting)
+      ansible.builtin.dnf:
+        name: dnf-plugins-core
+        state: present
+
+    - name: Check if reboot is required using dnf needs-restarting
+      ansible.builtin.command: dnf needs-restarting -r
+      register: reboot_check
+      failed_when: reboot_check.rc not in [0, 1]
+      changed_when: false
+
+    # --- БЛОК ВЫВОДА НОДЫ (ПЕРЕНЕСЕН СЮДА) ---
+    - name: Cordon the node (prevent new pods from scheduling)
+      ansible.builtin.command: kubectl cordon {{ inventory_hostname }}
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      changed_when: false
+      when: reboot_check.rc == 1
+
+    - name: Drain the node (gracefully evict existing pods)
+      ansible.builtin.command: >
+        kubectl drain {{ inventory_hostname }}
+        --ignore-daemonsets
+        --delete-emptydir-data
+        --force
+        --grace-period=60
+        --timeout=5m
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      register: drain_status
+      failed_when: drain_status.rc != 0
+      changed_when: true
+      when: reboot_check.rc == 1
+    # -----------------------------------------
+
+    - name: Reboot the server if required
+      ansible.builtin.reboot:
+        reboot_timeout: "{{ reboot_timeout }}"
+        msg: "Rebooting for kernel/system update via Ansible"
+        connect_timeout: 20
+        pre_reboot_delay: 10
+        post_reboot_delay: 30
+        test_command: uptime
+      when: reboot_check.rc == 1
+
+    - name: Capture running kernel after patching
+      ansible.builtin.command: uname -r
+      register: kernel_after
+      changed_when: false
+
+    - name: Report kernel change
+      ansible.builtin.debug:
+        msg: "Kernel changed from {{ kernel_before.stdout }} to {{ kernel_after.stdout }}"
+
+    - name: Verify critical services are active post-reboot
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+      loop: "{{ critical_services | default(['sshd', 'NetworkManager', 'k3s']) }}"
+      register: service_status
+      failed_when: service_status.status.ActiveState != "active"
+
+    - name: Clean up unused packages (autoremove)
+      ansible.builtin.dnf:
+        autoremove: true
+
+    - name: Clean DNF cache
+      ansible.builtin.command: dnf clean all
+      changed_when: false
+
+    - name: Write final patch summary to evidence log
+      ansible.builtin.lineinfile:
+        path: "{{ patch_evidence_dir }}/patch_summary.log"
+        line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | {{ kernel_before.stdout }} -> {{ kernel_after.stdout }}"
+        create: true
+        mode: '0640'
+
+    - name: Uncordon the node (allow scheduling again)
+      ansible.builtin.command: kubectl uncordon {{ inventory_hostname }}
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      changed_when: true
+      when: reboot_check.rc == 1

@@ -1,0 +1,19 @@
+---
+- name: 01. Prepare and harden Rocky Linux nodes
+  hosts: k3s_cluster
+  tags:
+    - base
+  roles:
+    - common
+    - security
+
+- name: 02. Deploy K3s Cluster via official orchestration
+  import_playbook: k3s.orchestration.site
+
+- name: 03. Fetch and configure local kubeconfig
+  hosts: k3s_cluster
+  run_once: true
+  tags:
+    - get-kubeconfig
+  roles:
+    - get-kubeconfig

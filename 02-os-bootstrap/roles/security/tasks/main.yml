@@ -1,0 +1,71 @@
+---
+- name: Install security packages
+  ansible.builtin.dnf:
+    name: 
+      - fail2ban
+      - firewalld
+    state: present
+
+- name: Configure fail2ban
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.local
+    mode: '0644'
+    content: |
+      [DEFAULT]
+      bantime  = 1h
+      findtime = 10m
+      maxretry = 5
+      backend  = systemd
+
+      [sshd]
+      enabled = true
+  notify: Restart fail2ban
+
+- name: Enable fail2ban service
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: started
+    enabled: true
+
+- name: Ensure firewalld is running and enabled
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Configure base Firewalld ports (SSH, HTTP, HTTPS)
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+    zone: public
+  loop:
+    - 22/tcp
+    - 80/tcp
+    - 443/tcp
+
+- name: Apply SSH Hardening config
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-rootenv-hardening.conf
+    owner: root
+    group: root
+    mode: '0600'
+    content: |
+      PasswordAuthentication no
+      PermitEmptyPasswords no
+      KbdInteractiveAuthentication no
+      PermitRootLogin prohibit-password
+      MaxAuthTries 3
+      LoginGraceTime 30
+      AllowTcpForwarding yes
+      X11Forwarding no
+      AllowAgentForwarding no
+      PermitUserEnvironment no
+      KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+      Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
+      MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
+      ClientAliveInterval 300
+      ClientAliveCountMax 2
+      AllowUsers admin
+  notify: Restart sshd
