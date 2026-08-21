@@ -33,7 +33,7 @@
     state: started
     enabled: true
 
-- name: Configure base Firewalld ports (SSH, HTTP, HTTPS)
+- name: Configure base Firewalld ports (SSH, HTTP, HTTPS, K8S)
   ansible.posix.firewalld:
     port: "{{ item }}"
     permanent: true
@@ -44,6 +44,7 @@
     - 22/tcp
     - 80/tcp
     - 443/tcp
+    - 6443/tcp
 
 - name: Apply SSH Hardening config
   ansible.builtin.copy:
