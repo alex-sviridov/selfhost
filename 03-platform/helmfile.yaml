@@ -1,0 +1,26 @@
+repositories:
+  - name: traefik
+    url: https://traefik.github.io/charts
+  - name: bedag
+    url: https://bedag.github.io/helm-charts
+
+releases:
+  # 1. Namespace and tls-secret
+  - name: traefik-tls-secret
+    namespace: traefik-system
+    createNamespace: true
+    chart: bedag/raw
+    version: 2.0.2
+    values:
+      - values/tls-secret.gotmpl
+
+  # 2. Traefik
+  - name: traefik
+    namespace: traefik-system
+    chart: traefik/traefik
+    version: 41.2.0
+    disableValidationOnInstall: true
+    needs:
+      - traefik-system/traefik-tls-secret
+    values:
+      - values/traefik.yaml

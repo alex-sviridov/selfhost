@@ -8,7 +8,7 @@ output "origin_ca_cert_pem" {
   description = "Cloudflare Origin CA Certificate"
 }
 
-output "origin_ca_key_pem" {
+output "private_key_pem" {
   value       = tls_private_key.origin_key.private_key_pem
   description = "Private key for Cloudflare Origin CA"
   sensitive   = true

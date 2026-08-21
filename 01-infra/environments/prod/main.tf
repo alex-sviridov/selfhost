@@ -27,3 +27,13 @@ module "service_dns" {
   proxied       = true
   environment   = var.environment
 }
+
+resource "local_file" "origin_ca_cert_pem" {
+  content = module.service_dns.origin_ca_cert_pem
+  filename = "${path.module}/../../../03-platform/files/cloudflare.crt"
+}
+
+resource "local_file" "private_key_pem" {
+  content = module.service_dns.private_key_pem
+  filename = "${path.module}/../../../03-platform/files/cloudflare.key"
+}

@@ -12,15 +12,3 @@ output "service_fqdn" {
   description = "Public FQDN of the rootenv service"
   value       = module.service_dns.fqdn
 }
-
-output "origin_ca_cert_pem" {
-  value       = module.service_dns.origin_ca_cert_pem
-  description = "Cloudflare Origin CA Certificate"
-  sensitive   = true
-}
-
-output "origin_ca_key_pem" {
-  value       = module.service_dns.origin_ca_key_pem
-  description = "Private key for Cloudflare Origin CA"
-  sensitive   = true
-}
