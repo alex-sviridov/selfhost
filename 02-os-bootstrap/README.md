@@ -5,6 +5,7 @@ Configures base OS settings, deploys the K3s cluster, and handles rolling update
 ## Prerequisites
 
 - ansible
+- ansible-galaxy
 - python3
 - kubectl
 

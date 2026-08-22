@@ -1,5 +1,6 @@
 ---
 collections:
+  - name: ansible.utils
   - name: https://github.com/k3s-io/k3s-ansible.git
     type: git
     version: 165062c # 1.2.2
