@@ -1,4 +1,8 @@
 ---
+- name: Set fqdn hostname
+  ansible.builtin.hostname:
+    name: "{{ fqdn }}"
+
 - name: Install base system and performance packages
   ansible.builtin.dnf:
     name:

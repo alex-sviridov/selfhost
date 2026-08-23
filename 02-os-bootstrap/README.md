@@ -17,7 +17,6 @@ make install
 
 ```bash
 make provision
-make k3s-kubeconfig-get
 export KUBECONFIG=~/.kube/selfhost-config
 ```
 

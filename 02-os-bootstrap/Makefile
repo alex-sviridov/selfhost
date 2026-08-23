@@ -1,4 +1,4 @@
-.PHONY: install install-collections install-python-modules run k3s-upgrade k3s-kubeconfig-get
+.PHONY: install install-collections install-python-modules os-upgrade k3s-upgrade k3s-kubeconfig-get
 
 install-collections:
 	ansible-galaxy collection install -r requirements.yml --force
