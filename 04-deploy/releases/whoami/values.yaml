@@ -1,0 +1,15 @@
+appName: whoami
+image:
+  repository: traefik/whoami
+  tag: v1.10
+service:
+  port: 80
+
+ingress:
+  path: /whoami
+  middlewares:
+    - name: errors
+      namespace: oauth2-proxy
+    - name: auth
+      namespace: oauth2-proxy 
+    - name: whoami-stripprefix

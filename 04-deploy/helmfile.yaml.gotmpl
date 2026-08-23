@@ -1,0 +1,22 @@
+templates:
+  default:
+    chart: ./charts/base-app
+    createNamespace: true
+    set:
+      - name: ingress.host
+        value: {{ requiredEnv "SERVICE_HOSTNAME" }}
+        
+releases:
+  - name: audiobookshelf
+    namespace: audiobookshelf
+    inherit:
+      - template: default
+    values:
+      - ./releases/audiobookshelf/values.yaml
+
+  - name: whoami
+    namespace: whoami
+    inherit:
+      - template: default
+    values:
+      - ./releases/whoami/values.yaml

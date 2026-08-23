@@ -1,0 +1,36 @@
+# 04-deploy/releases/audiobookshelf/values.yaml
+appName: audiobookshelf
+image:
+  repository: ghcr.io/advplyr/audiobookshelf
+  tag: latest
+service:
+  port: 8080
+
+ingress:
+  path: /audiobookshelf
+  middlewares:
+    - name: audiobookshelf-stripprefix
+
+env:
+  - name: TZ
+    value: "Europe/Luxembourg"
+  - name: HOST
+    value: "0.0.0.0"
+  - name: PORT
+    value: "8080"
+  - name: REFRESH_TOKEN_EXPIRY
+    value: "4838400"
+
+storage:
+  config:
+    mountPath: /config
+    size: 100Mi
+  metadata:
+    mountPath: /metadata
+    size: 100Mi
+  audiobooks:
+    mountPath: /audiobooks
+    size: 10Gi
+  podcasts:
+    mountPath: /podcasts
+    size: 1Gi
