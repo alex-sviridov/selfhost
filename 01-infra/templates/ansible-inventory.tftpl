@@ -1,6 +1,6 @@
 [server]
-%{ for name, node in hosts ~}
-${name} ansible_host=${node.ipv4_address} ansible_user=admin ansible_become=true
+%{ for host in hosts ~}
+${host.name} ansible_host=${host.ip} fqdn=${host.fqdn} ansible_user=admin ansible_become=true
 %{ endfor ~}
 
 [agent]

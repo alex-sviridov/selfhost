@@ -42,14 +42,32 @@ variable "dns_zone_name" {
   type        = string
 }
 
-variable "servers" {
-  description = "List of servers to be provisioned"
-  type = map(object({
-  }))
+variable "server_count" {
+  type        = number
+  default     = 1
+  description = "Count of servers to create"
 }
 
 variable "service_dns_name" {
   description = "DNS name for the rootenv service, relative to dns_zone_name (e.g. 'selfhost' → selfhost.example.com)"
   type        = string
   default     = "sandbox"
+}
+
+variable "server_type" {
+  description = "Hetzner server type"
+  type        = string
+  default     = "cx23"
+}
+
+variable "server_location" {
+  description = "Hetzner datacenter location"
+  type        = string
+  default     = "nbg1"
+}
+
+variable "server_image" {
+  description = "Base OS image"
+  type        = string
+  default     = "rocky-10"
 }

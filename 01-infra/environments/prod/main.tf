@@ -1,18 +1,33 @@
+resource "random_pet" "server_name" {
+  count     = var.server_count
+  length    = 1
+  separator = "-"
+}
+
 module "host" {
-  for_each = var.servers
+  count = var.server_count
   source          = "../../modules/node"
-  name            = each.key
-  dns_name        = each.key
+  name            = random_pet.server_name[count.index].id
+  dns_name        = random_pet.server_name[count.index].id
   environment     = var.environment
   ssh_public_keys = var.ssh_public_keys
   allowed_ssh_ips = var.allowed_ssh_ips
   dns_zone_id     = var.dns_zone_id
   dns_zone_name   = var.dns_zone_name
+  server_type     = var.server_type
+  location        = var.server_location
+  image           = var.server_image
 }
 
 resource "local_file" "ansible_inventory" {
   content = templatefile("${path.module}/../../templates/ansible-inventory.tftpl", {
-    hosts = module.host
+    hosts = [
+      for h in module.host : {
+        name = h.name
+        ip   = h.ipv4_address
+        fqdn = h.fqdn
+      }
+    ]
   })
   filename = "${path.module}/../../../02-os-bootstrap/inventory.ini"
 }
