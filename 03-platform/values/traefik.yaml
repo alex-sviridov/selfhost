@@ -1,4 +1,3 @@
-# 1. Настройка портов и нативный редирект HTTP -> HTTPS
 ports:
   web:
     port: 8000
@@ -46,18 +45,19 @@ ports:
     forwardedHeaders:
       trustedIPs: *cloudflare_ips
 
-# 2. Логирование на верхнем уровне
 log:
   level: "ERROR"
   format: json
 
-# 3. Нативный TLSStore для Cloudflare Origin CA сертификата
 tlsStore:
   default:
     defaultCertificate:
       secretName: cloudflare-origin-tls
 
-# 4. Минимально необходимые CLI-аргументы
 additionalArguments:
   - "--providers.kubernetesingress.ingressClass=traefik"
   - "--ping=true"
+
+providers:
+  kubernetesCRD:
+    allowCrossNamespace: true

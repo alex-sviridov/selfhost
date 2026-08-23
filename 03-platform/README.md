@@ -4,5 +4,13 @@ Deploys foundational cluster add-ons via Helm, configuring ingress routing (Trae
 
 ## Prerequisites
 
-- helm
-- helmfile
+- [helm](https://helm.sh/docs/intro/install/)
+- [helmfile](https://helmfile.readthedocs.io/en/latest/#installation)
+
+## Run
+
+```bash
+set -o allexport && source .env && set +o allexport
+helmfile init --force
+helmfile apply
+```

@@ -3,18 +3,22 @@ repositories:
     url: https://traefik.github.io/charts
   - name: bedag
     url: https://bedag.github.io/helm-charts
+  - name: oauth2-proxy
+    url: https://oauth2-proxy.github.io/manifests
 
 releases:
-  # 1. Namespace and tls-secret
+  # 1. Traefik
+
+  # --- Taefik Namespace and tls-secret ---
   - name: traefik-tls-secret
     namespace: traefik-system
     createNamespace: true
     chart: bedag/raw
     version: 2.0.2
     values:
-      - values/tls-secret.gotmpl
+      - values/traefik-tls-secret.gotmpl
 
-  # 2. Traefik
+  #--- Traefik Helm chart ---
   - name: traefik
     namespace: traefik-system
     chart: traefik/traefik
@@ -24,3 +28,39 @@ releases:
       - traefik-system/traefik-tls-secret
     values:
       - values/traefik.yaml
+
+  # 2. OAuth2 Proxy
+
+  # --- OAuth2 Proxy Secrets ---
+  - name: oauth2-secret
+    namespace: oauth2-proxy
+    createNamespace: true
+    chart: bedag/raw
+    version: v2.0.2
+    values:
+      - values/oauth2-secrets.yaml.gotmpl
+
+  # --- OAuth2 Proxy Application ---
+  - name: oauth2-proxy
+    namespace: oauth2-proxy
+    createNamespace: true
+    chart: oauth2-proxy/oauth2-proxy
+    version: "8.3.0"
+    needs:
+      - oauth2-proxy/oauth2-secret
+      - traefik-system/traefik
+    values:
+      - values/oauth2.yaml.gotmpl
+
+  # --- OAuth2 Ingress & Traefik Middlewares ---
+  - name: oauth2-ingress-middleware
+    namespace: oauth2-proxy
+    createNamespace: true
+    chart: bedag/raw
+    version: v2.0.2
+    disableValidation: true
+    needs:
+      - oauth2-proxy/oauth2-proxy      
+      - traefik-system/traefik    
+    values:
+      - values/oauth2-ingress-middleware.yaml.gotmpl

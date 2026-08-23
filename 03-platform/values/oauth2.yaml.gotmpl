@@ -1,0 +1,66 @@
+config:
+  existingSecret: oauth2-secret
+
+  configFile: |
+    provider_display_name = "GitHub"
+    provider = "github"
+    github_users = [{{ requiredEnv "OAUTH2_GITHUB_USERS" }}]
+    email_domains = ["*"]
+    
+    cookie_secure = true
+    cookie_samesite = "lax"
+    
+    upstreams = ["static://200"]
+    redirect_url = "https://{{ requiredEnv "SERVICE_HOSTNAME" }}/oauth2/callback"
+    
+    # 2. Обязательные скоупы для GitHub OAuth
+    scope = "read:user user:email read:org"
+    
+    pass_access_token = true
+    pass_authorization_header = true
+    pass_user_headers = true
+    set_authorization_header = true
+    
+    cookie_name = "_oauth2_proxy"
+    cookie_refresh = "2m"
+    cookie_expire = "24h"
+    whitelist_domains = ["{{ requiredEnv "SERVICE_HOSTNAME" }}"]
+    
+    set_xauthrequest = true
+
+extraArgs:
+  - --reverse-proxy=true
+  - --custom-templates-dir=/app/custom-templates
+
+extraObjects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: oauth2-custom-templates
+      namespace: oauth2-proxy
+    data:
+      sign_in.html: |
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <script>
+                var target = "{{ "{{.Redirect}}" }}";
+                
+                if (!target || target === "/") {
+                    target = window.location.href;
+                }
+                
+                window.location.replace("/oauth2/start?rd=" + encodeURIComponent(target));
+            </script>
+        </head>
+        <body style="background-color: #111;"></body>
+        </html>
+
+extraVolumes:
+  - name: custom-templates
+    configMap:
+      name: oauth2-custom-templates
+
+extraVolumeMounts:
+  - name: custom-templates
+    mountPath: /app/custom-templates
