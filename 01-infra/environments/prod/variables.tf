@@ -9,11 +9,6 @@ variable "ssh_public_keys" {
   type        = list(string)
 }
 
-variable "ssh_private_key_path" {
-  description = "SSH private keys for admin access to the node, used to retrieve kubeconfig"
-  type        = string
-}
-
 variable "allowed_ssh_ips" {
   description = "CIDRs allowed to reach SSH and Kubernetes API"
   type        = list(string)
