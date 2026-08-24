@@ -1,7 +1,8 @@
+{{- if .Values.service }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.appName }}-service
+  name: {{ .Values.appName }}-svc
 spec:
   type: ClusterIP
   selector:
@@ -10,3 +11,4 @@ spec:
     - name: http
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
+{{- end }}

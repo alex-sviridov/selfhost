@@ -1,0 +1,12 @@
+{{- range.Values.ingress }}
+{{- if .stripPrefix }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $.Values.appName }}-{{ .path | replace "/" "-" | trimAll "-" }}-stripprefix
+spec:
+  stripPrefix:
+    prefixes:
+      - {{ .path }}
+{{- end }}
+{{- end }}

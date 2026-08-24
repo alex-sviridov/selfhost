@@ -2,14 +2,13 @@
 appName: audiobookshelf
 image:
   repository: ghcr.io/advplyr/audiobookshelf
-  tag: latest
+  tag: 2.36.0
 service:
   port: 8080
 
 ingress:
-  path: /audiobookshelf
-  middlewares:
-    - name: audiobookshelf-stripprefix
+  - path: /audiobookshelf
+    stripPrefix: true
 
 env:
   - name: TZ
@@ -20,6 +19,10 @@ env:
     value: "8080"
   - name: REFRESH_TOKEN_EXPIRY
     value: "4838400"
+
+resources:
+  requests: {}
+  limits: {}
 
 storage:
   config:

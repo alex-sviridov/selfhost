@@ -14,7 +14,7 @@ Deploys user-facing applications via Helm and Kustomize.
 ## Run
 
 ```bash
-source ../.env
+set -o allexport && source ../.env && set +o allexport
 helmfile init --force
 helmfile apply
 ```

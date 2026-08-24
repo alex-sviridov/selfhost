@@ -2,9 +2,8 @@ templates:
   default:
     chart: ./charts/base-app
     createNamespace: true
-    set:
-      - name: ingress.host
-        value: {{ requiredEnv "SERVICE_HOSTNAME" }}
+    values:
+      - ingressHost: {{ requiredEnv "SERVICE_HOSTNAME" | quote }}
         
 releases:
   - name: audiobookshelf
@@ -20,3 +19,18 @@ releases:
       - template: default
     values:
       - ./releases/whoami/values.yaml
+
+  - name: paperless-redis
+    namespace: paperless
+    inherit:
+      - template: default
+    values:
+      - ./releases/paperless/redis-values.yaml
+
+  - name: paperless
+    namespace: paperless
+    chart: ./charts/base-app
+    inherit:
+      - template: default
+    values:
+      - ./releases/paperless/paperless-values.yaml.gotmpl

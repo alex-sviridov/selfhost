@@ -1,0 +1,18 @@
+appName: paperless-redis
+
+image:
+  repository: docker.io/library/redis
+  tag: 8.10.1
+
+service:
+  port: 6379
+
+resources:
+  requests: {}
+  limits: {}
+
+storage:
+  data:
+    mountPath: /data
+    accessMode: ReadWriteOnce
+    size: 500Mi
