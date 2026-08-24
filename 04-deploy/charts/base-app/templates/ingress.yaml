@@ -8,13 +8,13 @@ spec:
     - websecure
   routes:
     {{- range $route := .Values.ingress }}
-    - match: Host(`{{ $route.host | default $.Values.ingressHost }}`) && PathPrefix(`{{ $route.path }}`)
+    - match: Host(`{{ $route.host | default $.Values.ingressHost }}`) && PathPrefix(`{{ $route.path }}`){{- if $route.extraMatch }} && {{ $route.extraMatch }}{{- end }}
       kind: Rule
 
       {{- if or $route.middlewares $route.stripPrefix }}
       middlewares:
         {{- if $route.stripPrefix }}
-        - name: {{ $.Values.appName }}-{{ .path | replace "/" "-" | trimAll "-" }}-stripprefix
+        - name: {{ $.Values.appName }}-{{ .path  }}-stripprefix
           namespace: {{ $.Release.Namespace }}
         {{- end }}
 

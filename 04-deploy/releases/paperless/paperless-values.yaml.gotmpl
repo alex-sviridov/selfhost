@@ -8,9 +8,19 @@ service:
   port: 8000
 
 ingress:
+  - path: /docs/api
+    extraMatch: "HeaderRegexp(`User-Agent`, `QuickScan`)"
+    middlewares: 
+      - name: strip-auth-headers
+        namespace: oauth2-proxy
   - path: /docs/ws
+    middlewares: 
+      - name: strip-auth-headers
+        namespace: oauth2-proxy
   - path: /docs
     middlewares: 
+      - name: strip-auth-headers
+        namespace: oauth2-proxy
       - name: errors
         namespace: oauth2-proxy
       - name: auth
@@ -59,7 +69,7 @@ env:
   - name: PAPERLESS_DISABLE_REGULAR_LOGIN
     value: "true"
   - name: PAPERLESS_OCR_LANGUAGES
-    value: "rus+eng+fra"
+    value: "rus eng fra"
   - name: PAPERLESS_OCR_LANGUAGE
     value: "rus"
   
