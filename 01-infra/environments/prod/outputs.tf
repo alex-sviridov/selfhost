@@ -10,5 +10,5 @@ output "node_ipv4s" {
 
 output "service_fqdn" {
   description = "Public FQDN of the rootenv service"
-  value       = module.service_dns.fqdn
+  value       = module.service_dns_name.fqdn
 }

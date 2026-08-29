@@ -5,6 +5,8 @@ repositories:
     url: https://bedag.github.io/helm-charts
   - name: oauth2-proxy
     url: https://oauth2-proxy.github.io/manifests
+  - name: twuni 
+    url: https://twuni.github.io/docker-registry.helm
 
 releases:
   # 1. Traefik
@@ -16,7 +18,7 @@ releases:
     chart: bedag/raw
     version: 2.0.2
     values:
-      - values/traefik-tls-secret.gotmpl
+      - releases/traefik/secrets.yaml.gotmpl
 
   #--- Traefik Helm chart ---
   - name: traefik
@@ -27,18 +29,19 @@ releases:
     needs:
       - traefik-system/traefik-tls-secret
     values:
-      - values/traefik.yaml
+      - releases/traefik/values.yaml
 
   # 2. OAuth2 Proxy
 
   # --- OAuth2 Proxy Secrets ---
-  - name: oauth2-secret
+  - name: oauth2-resources
     namespace: oauth2-proxy
     createNamespace: true
     chart: bedag/raw
     version: v2.0.2
+    disableValidation: true
     values:
-      - values/oauth2-secrets.yaml.gotmpl
+      - releases/oauth2/resources.yaml.gotmpl
 
   # --- OAuth2 Proxy Application ---
   - name: oauth2-proxy
@@ -47,20 +50,16 @@ releases:
     chart: oauth2-proxy/oauth2-proxy
     version: "8.3.0"
     needs:
-      - oauth2-proxy/oauth2-secret
+      - oauth2-proxy/oauth2-resources
       - traefik-system/traefik
     values:
-      - values/oauth2.yaml.gotmpl
+      - releases/oauth2/values.yaml.gotmpl
 
-  # --- OAuth2 Ingress & Traefik Middlewares ---
-  - name: oauth2-ingress-middleware
-    namespace: oauth2-proxy
-    createNamespace: true
-    chart: bedag/raw
-    version: v2.0.2
-    disableValidation: true
-    needs:
-      - oauth2-proxy/oauth2-proxy      
-      - traefik-system/traefik    
+  # 3. Container Registry
+
+  - name: docker-registry
+    namespace: docker-registry
+    chart: twuni/docker-registry
+    version: 3.0.0
     values:
-      - values/oauth2-ingress-middleware.yaml.gotmpl
+      - ./releases/registry/values.yaml

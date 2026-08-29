@@ -1,0 +1,26 @@
+service:
+  name: registry
+  type: ClusterIP
+  port: 5000
+
+# Turn off internal auth, as register is internal only
+secrets:
+  htpasswd: ""
+
+persistence:
+  enabled: true
+  accessMode: 'ReadWriteOnce'
+  size: 5Gi
+
+garbageCollect:
+  enabled: true
+  schedule: "0 2 * * *" 
+  deleteUntagged: true  
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

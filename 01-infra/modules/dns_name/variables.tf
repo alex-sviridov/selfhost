@@ -13,6 +13,12 @@ variable "dns_name" {
   type        = string
 }
 
+variable "create_certs" {
+  description = "Whether Cloudflare certificates have to be created"
+  type        = bool
+  default     = false
+}
+
 variable "target_ips" {
   description = "Map of node names to IPv4 addresses the record points to."
   type        = map(string)

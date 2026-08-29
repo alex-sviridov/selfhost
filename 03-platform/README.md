@@ -19,7 +19,7 @@ Deploys foundational cluster add-ons via Helm, configuring ingress routing (Trae
 ## Run
 
 ```bash
-set -o allexport && source .env && set +o allexport
+set -o allexport && source ../.env && set +o allexport
 helmfile init --force
 helmfile apply
 ```
