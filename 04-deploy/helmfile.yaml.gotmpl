@@ -49,3 +49,16 @@ releases:
     values:
       - ./releases/taskframe/frontend-values.yaml
 
+  - name: readtrail-backend
+    namespace: readtrail
+    inherit:
+      - template: default
+    values:
+      - ./releases/readtrail/backend-values.yaml
+
+  - name: readtrail-frontend
+    namespace: readtrail
+    inherit:
+      - template: default
+    values:
+      - ./releases/readtrail/frontend-values.yaml
