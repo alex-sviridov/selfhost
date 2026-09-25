@@ -16,3 +16,4 @@ storage:
     mountPath: /data
     accessMode: ReadWriteOnce
     size: 500Mi
+    noBackup: true

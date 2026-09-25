@@ -5,8 +5,8 @@ repositories:
     url: https://bedag.github.io/helm-charts
   - name: oauth2-proxy
     url: https://oauth2-proxy.github.io/manifests
-  - name: twuni 
-    url: https://twuni.github.io/docker-registry.helm
+  - name: vmware-tanzu
+    url: https://vmware-tanzu.github.io/helm-charts
 
 releases:
   # 1. Traefik
@@ -55,11 +55,32 @@ releases:
     values:
       - releases/oauth2/values.yaml.gotmpl
 
-  # 3. Container Registry
+  # 3. Velero Backuo
 
-  - name: docker-registry
-    namespace: docker-registry
-    chart: twuni/docker-registry
-    version: 3.0.0
+  # --- Velero Secrets ---
+  - name: velero-secrets
+    namespace: velero
+    createNamespace: true
+    chart: bedag/raw
+    version: v2.0.2
+    disableValidation: true
     values:
-      - ./releases/registry/values.yaml
+      - releases/velero/resources.yaml.gotmpl
+
+  - name: velero
+    namespace: velero
+    createNamespace: true
+    disableValidationOnInstall: true
+    chart: vmware-tanzu/velero
+    version: " 12.2.0"
+    values:
+      - releases/velero/values.yaml.gotmpl
+
+  - name: velero-schedule
+    namespace: velero
+    createNamespace: true
+    chart: bedag/raw
+    version: v2.0.2
+    disableValidation: true
+    values:
+      - releases/velero/schedule.yaml.gotmpl

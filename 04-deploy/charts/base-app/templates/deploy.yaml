@@ -13,6 +13,16 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ .Values.appName }}
+      {{- $backupVolumes := list }}
+      {{- range $name, $pvc := .Values.storage }}
+        {{- if not $pvc.noBackup }}
+          {{- $backupVolumes = append $backupVolumes $name }}
+        {{- end }}
+      {{- end }}
+      {{- if $backupVolumes }}
+      annotations:
+        backup.velero.io/backup-volumes: {{ join "," $backupVolumes }}
+      {{- end }}
     spec:
       containers:
         - name: {{ .Values.appName }}

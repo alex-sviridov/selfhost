@@ -1,0 +1,22 @@
+resources:
+  - apiVersion: velero.io/v1
+    kind: Schedule
+    metadata:
+      name: daily
+      namespace: velero
+    spec:
+      # Schedule is a Cron expression defining when to run the Backup
+      schedule: 11 5 * * *
+      template:
+        includedNamespaces:
+        - '*'
+        excludedNamespaces:
+        - default
+        - kube-*
+        - oauth2-proxy
+        - traefik-system
+        - velero
+        includedResources:
+        - '*'
+        excludedResources:
+        - storageclasses.storage.k8s.io
