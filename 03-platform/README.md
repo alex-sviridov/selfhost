@@ -7,6 +7,9 @@ Deploys foundational cluster add-ons via Helm, configuring ingress routing (Trae
 - [helm](https://helm.sh/docs/intro/install/)
 - [helmfile](https://helmfile.readthedocs.io/en/latest/#installation)
 - [Configure](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps) GitHub OAUTH2
+- External certificates:
+    - files/cloudflare.crt
+    - files/cloudflare.key
 
 ## Environment variables required
 
