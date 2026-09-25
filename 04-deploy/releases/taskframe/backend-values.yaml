@@ -1,0 +1,22 @@
+appName: taskframe-backend
+
+image:
+  repository: ghcr.io/alex-sviridov/taskframe-pocketbase
+  tag:  19a4457
+
+service:
+  port: 8090
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+storage:
+  data:
+    mountPath: /pb/pb_data
+    accessMode: ReadWriteOnce
+    size: 100Mi

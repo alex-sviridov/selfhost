@@ -1,0 +1,27 @@
+appName: taskframe-frontend
+
+image:
+  repository: ghcr.io/alex-sviridov/taskframe
+  tag: 19a4457
+
+service:
+  port: 8080
+
+ingress:
+  - path: /task
+    stripPrefix: true
+
+env:
+  - name: PB_UPSTREAM
+    value: "taskframe-backend-svc:8090"
+
+  - name: BASE_HREF
+    value: "/task/"
+  
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"

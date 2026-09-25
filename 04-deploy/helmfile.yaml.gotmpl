@@ -34,3 +34,18 @@ releases:
       - template: default
     values:
       - ./releases/paperless/paperless-values.yaml.gotmpl
+
+  - name: taskframe-backend
+    namespace: taskframe
+    inherit:
+      - template: default
+    values:
+      - ./releases/taskframe/backend-values.yaml
+
+  - name: taskframe-frontend
+    namespace: taskframe
+    inherit:
+      - template: default
+    values:
+      - ./releases/taskframe/frontend-values.yaml
+
