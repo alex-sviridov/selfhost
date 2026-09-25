@@ -42,7 +42,6 @@ env:
   - name: PAPERLESS_LOGOUT_REDIRECT_URL
     value: "https://{{ requiredEnv "SERVICE_HOSTNAME" }}/oauth2/sign_out"
 
-  # Секреты берем из .env файла
   - name: PAPERLESS_SECRET_KEY
     value: "{{ requiredEnv "PAPERLESS_SECRET_KEY" }}"
   - name: PAPERLESS_ADMIN_PASSWORD
@@ -79,10 +78,10 @@ env:
 resources:
   requests:
     memory: "512Mi"
-    cpu: "500m"
+    cpu: "200m"
   limits:
-    memory: "2Gi"
-    cpu: "1"
+    memory: "1Gi"
+    cpu: "500m"
 
 storage:
   data:

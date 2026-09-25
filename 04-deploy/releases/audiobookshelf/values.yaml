@@ -21,8 +21,12 @@ env:
     value: "4838400"
 
 resources:
-  requests: {}
-  limits: {}
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "512Mi"
+    cpu: "200m"
 
 storage:
   config:
