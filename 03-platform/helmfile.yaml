@@ -7,6 +7,8 @@ repositories:
     url: https://oauth2-proxy.github.io/manifests
   - name: vmware-tanzu
     url: https://vmware-tanzu.github.io/helm-charts
+  - name: external-dns
+    url: https://kubernetes-sigs.github.io/external-dns
 
 releases:
   # 1. Traefik
@@ -55,7 +57,7 @@ releases:
     values:
       - releases/oauth2/values.yaml.gotmpl
 
-  # 3. Velero Backuo
+  # 3. Velero Backup
 
   # --- Velero Secrets ---
   - name: velero-secrets
@@ -84,3 +86,23 @@ releases:
     disableValidation: true
     values:
       - releases/velero/schedule.yaml.gotmpl
+
+# 4. ExternalDNS 
+
+  # --- ExternalDNS Secrets ---
+  - name: externaldns-secrets
+    namespace: external-dns
+    createNamespace: true
+    chart: bedag/raw
+    version: v2.0.2
+    disableValidation: true
+    values:
+      - releases/externaldns/resources.yaml.gotmpl
+
+  - name: externaldns
+    namespace: external-dns
+    createNamespace: true
+    chart: external-dns/external-dns 
+    version: " 1.22.0"
+    values:
+      - releases/externaldns/values.yaml.gotmpl

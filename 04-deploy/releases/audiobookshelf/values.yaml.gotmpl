@@ -6,8 +6,11 @@ image:
 service:
   port: 8080
 
+dnsTarget: "{{ requiredEnv "SERVICE_HOSTNAME" }}"
+ingressHost: "abs.{{ requiredEnv "TF_VAR_dns_zone_name" }}"
+
 ingress:
-  - path: /audiobookshelf
+  - path: /
     stripPrefix: true
 
 env:
