@@ -13,7 +13,7 @@ spec:
     - websecure
   routes:
     {{- range $route := .Values.ingress }}
-    - match: Host(`{{ $route.host | default $.Values.ingressHost }}`) && PathPrefix(`{{ $route.path }}`){{- if $route.extraMatch }} && {{ $route.extraMatch }}{{- end }}
+    - match: Host(`{{ $.Values.ingressHost }}`) && PathPrefix(`{{ $route.path }}`){{- if $route.extraMatch }} && {{ $route.extraMatch }}{{- end }}
       kind: Rule
 
       {{- if or $route.middlewares $route.stripPrefix }}

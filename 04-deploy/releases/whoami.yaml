@@ -15,7 +15,7 @@ spec:
     name: base-app
     namespace: flux-system
   values:
-    ingressHost: "${SERVICE_DNS_NAME}"
+    ingressHost: "${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"
     appName: whoami
     image:
       repository: traefik/whoami
