@@ -14,5 +14,9 @@ spec:
   path: ./
   sourceRef: { kind: GitRepository, name: selfhost }
   decryption: { provider: sops, secretRef: { name: sops-age } }
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: shared-env
   interval: 10m
   prune: true

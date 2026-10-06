@@ -53,6 +53,16 @@
         age.agekey: "{{ lookup('file', lookup('env', 'HOME') ~ '/.config/sops/age/keys.txt') }}"
   no_log: true
 
+
+- name: Shared env (initial copy)
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata: { name: shared-env, namespace: flux-system }
+      stringData: "{{ lookup('community.sops.sops', playbook_dir ~ '/../.sops.env', input_type='dotenv', output_type='json') | from_json }}"
+  no_log: true
+
 - name: Wire Flux to the repo
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}"

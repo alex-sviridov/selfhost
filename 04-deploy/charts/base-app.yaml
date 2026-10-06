@@ -1,0 +1,13 @@
+# 04-deploy/charts/base-app.yaml
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmChart
+metadata:
+  name: base-app
+  namespace: flux-system
+spec:
+  chart: ./04-deploy/charts/base-app
+  sourceRef:
+    kind: GitRepository
+    name: selfhost
+  reconcileStrategy: Revision
+  interval: 10m
