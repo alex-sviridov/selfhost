@@ -1,0 +1,64 @@
+---
+# Keeps the node's own logs and performance history across reboots and freezes: the journal up to
+# node_history_journal_max_size_mb, the sysstat data for node_history_retention_days days.
+# Read it with `journalctl -b -1` and `sar`.
+
+- name: Keep the system journal on disk, capped in size
+  block:
+    - name: Remove the drop-in this role used to write itself (the system role has its own)
+      ansible.builtin.file:
+        path: /etc/systemd/journald.conf.d/persistent.conf
+        state: absent
+
+    - name: Configure the journal with the RHEL system role
+      ansible.builtin.include_role:
+        name: fedora.linux_system_roles.journald
+      vars:
+        journald_persistent: true
+        journald_max_disk_size: "{{ node_history_journal_max_size_mb }}"
+
+- name: Record performance history with sysstat
+  block:
+    - name: Install sysstat
+      ansible.builtin.dnf:
+        name: sysstat
+        state: present
+
+    - name: Keep sar data for the retention period and record disk figures
+      ansible.builtin.lineinfile:
+        path: /etc/sysconfig/sysstat
+        regexp: '^{{ item.name }}='
+        line: '{{ item.name }}={{ item.value }}'
+      # In check mode the package is not installed yet, so its config file does not exist
+      ignore_errors: "{{ ansible_check_mode }}"
+      loop:
+        - { name: HISTORY, value: "{{ node_history_retention_days }}" }
+        - { name: SADC_OPTIONS, value: '"-S DISK"' }
+
+    - name: Create the sysstat timer drop-in directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/sysstat-collect.timer.d
+        state: directory
+        mode: '0755'
+
+    - name: Collect every minute instead of every 10 minutes
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/sysstat-collect.timer.d/every-minute.conf
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [Timer]
+          OnCalendar=
+          OnCalendar=*:*:00
+      register: sysstat_timer
+
+    - name: Enable the sysstat collection and cleanup timers
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: "{{ 'restarted' if sysstat_timer.changed else 'started' }}"
+        daemon_reload: "{{ sysstat_timer.changed }}"
+      loop:
+        - sysstat-collect.timer
+        - sysstat-summary.timer

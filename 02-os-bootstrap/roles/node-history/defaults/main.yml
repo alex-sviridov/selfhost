@@ -1,0 +1,5 @@
+---
+# The system journal is kept on disk and capped in size (the oldest entries go first)
+node_history_journal_max_size_mb: 200
+# How many days of sysstat/sar data are kept
+node_history_retention_days: 7

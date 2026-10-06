@@ -5,6 +5,7 @@
     - base
   roles:
     - common
+    - node-history
     - security
 
 - name: 02. Deploy K3s Cluster via official orchestration
