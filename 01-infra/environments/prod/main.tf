@@ -1,3 +1,22 @@
+data "sops_file" "config" {
+  source_file = "./config.sops.yaml"
+}
+
+data "sops_file" "shared" {
+  source_file = "../../../.sops.env"
+  input_type  = "dotenv"
+}
+
+locals {
+  config = yamldecode(data.sops_file.config.raw)
+
+  ssh_public_keys  = local.config.ssh_public_keys
+  allowed_ssh_ips  = local.config.allowed_ssh_ips
+  dns_zone_name    = data.sops_file.shared.data["DNS_ZONE_NAME"]
+  dns_zone_id      = data.sops_file.shared.data["DNS_ZONE_ID"]
+  service_dns_name = data.sops_file.shared.data["SERVICE_DNS_NAME"]
+}
+
 resource "random_pet" "server_name" {
   count     = var.server_count
   length    = 1
@@ -10,16 +29,16 @@ module "host" {
   name            = random_pet.server_name[count.index].id
   dns_name        = random_pet.server_name[count.index].id
   environment     = var.environment
-  ssh_public_keys = var.ssh_public_keys
-  allowed_ssh_ips = var.allowed_ssh_ips
-  dns_zone_id     = var.dns_zone_id
-  dns_zone_name   = var.dns_zone_name
+  ssh_public_keys = local.ssh_public_keys
+  allowed_ssh_ips = local.config.allowed_ssh_ips
+  dns_zone_id     = local.dns_zone_id
+  dns_zone_name   = local.dns_zone_name
   server_type     = var.server_type
   location        = var.server_location
   image           = var.server_image
 }
 
-resource "local_file" "ansible_inventory" {
+resource "local_sensitive_file" "ansible_inventory" {
   content = templatefile("${path.module}/../../templates/ansible-inventory.tftpl", {
     hosts = [
       for h in module.host : {
@@ -35,20 +54,20 @@ resource "local_file" "ansible_inventory" {
 module "service_dns_name" {
   source        = "../../modules/dns_name"
   create_certs  = true
-  dns_zone_id   = var.dns_zone_id
-  dns_zone_name = var.dns_zone_name
-  dns_name      = var.service_dns_name
+  dns_zone_id   = local.dns_zone_id
+  dns_zone_name = local.dns_zone_name
+  dns_name      = local.service_dns_name
   target_ips    = { for k, v in module.host : k => v.ipv4_address }
   proxied       = true
   environment   = var.environment
 }
 
-resource "local_file" "origin_ca_cert_pem" {
+resource "local_sensitive_file" "origin_ca_cert_pem" {
   content = module.service_dns_name.origin_ca_cert_pem
   filename = "${path.module}/../../../03-platform/files/cloudflare.crt"
 }
 
-resource "local_file" "private_key_pem" {
+resource "local_sensitive_file" "private_key_pem" {
   content = module.service_dns_name.private_key_pem
   filename = "${path.module}/../../../03-platform/files/cloudflare.key"
 }

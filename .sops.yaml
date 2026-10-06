@@ -1,0 +1,13 @@
+creation_rules:
+  # dotenv files: encrypt every value
+  - path_regex: \.sops\.env$
+    age: age1s7hkvapuyeup44gajxhc85vd0q4att0cd2t5ygpkffemhcchpqrslvqpdu
+
+  # plain YAML in Terraform: encrypt every value
+  - path_regex: 01-infra/.*\.sops\.ya?ml$
+    age: age1s7hkvapuyeup44gajxhc85vd0q4att0cd2t5ygpkffemhcchpqrslvqpdu
+
+  # Kubernetes Secrets: encrypt only data/stringData, keep kind/metadata readable
+  - path_regex: \.sops\.ya?ml$
+    encrypted_regex: ^(data|stringData)$
+    age: age1s7hkvapuyeup44gajxhc85vd0q4att0cd2t5ygpkffemhcchpqrslvqpdu

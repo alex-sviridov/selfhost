@@ -1,0 +1,19 @@
+ssh_public_keys:
+    - ENC[AES256_GCM,data:DJlizPmIOtZJyNakgyvcfgtvU+r8tm//ZeT5QECHh0sS47GP/HCtBWZdmaaeOaGQZIlu5M8xGjndkFg3roB/7V6kr8w/Bo/sh6bPAb2etb20G7XXDITia4SEh4TV0cyKqw==,iv:boSgq9Iswz9yxJmD/wV+9zHs7cCO3mhl4+Qgh5DVy2I=,tag:jJ+ZFF6dQQTM3jA2JGC38A==,type:str]
+allowed_ssh_ips:
+    - ENC[AES256_GCM,data:r4brYSC/TVdQ,iv:8rhLQ7KZVrNBb7xfTk3Y+NMPisYtpFI02JeCVnsBeX8=,tag:RDOuIReLMEWjU2NVC4bl7Q==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA1UFFxUzh2UXdSeHRzbEp0
+            aWtLKzB2a1pjRE1td3hzQ1VPRkJrdFFkV0hvCkRIekk3WDJwU0VMRmNFc0pXdmJs
+            amcvMWlaY3lRYVQweVdGVWJSYUZlV3cKLS0tIElCL3hkbjNYbUE1ellDTEViUGRF
+            cm1Cc21MdUpWL0M5a094ZnJsTjN0OGMKe2bdBTlNxTeFh8bihCszAtus9Fjo0hP0
+            N+Kibk+ZfjwufSurb/XzK+aWFkdPWJHd1v72i8q++cu48z3hiGVrKQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1s7hkvapuyeup44gajxhc85vd0q4att0cd2t5ygpkffemhcchpqrslvqpdu
+    lastmodified: "2026-10-06T10:26:32Z"
+    mac: ENC[AES256_GCM,data:p9x9HlFyvd5naHkzZafT27GdhKNWeaXx/mJzKJfj8wkMBUe2k5+TZlgphriQbuHDvqV6ozVAInPosO9JlcAt3l6EKj3XJMp7+yCXSXQNFhdC+HQNgEnY7eeRKop3TtafDELdQ4pKRGbrsoKdRQKeJ+BdxgTx5DMB8K7BzNVNWd4=,iv:p+TxHDgvSGR0eDgxu4PXpHy678osO7VONRG1Vn1/iX4=,tag:B0stzVWnAuxtqbZNNvX/bQ==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.13.3
