@@ -1,29 +1,37 @@
----
 - name: Ensure .kube directory exists locally
   ansible.builtin.file:
-    path: "{{ lookup('env', 'HOME') }}/.kube"
+    path: "{{ kubeconfig_path | dirname }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
   delegate_to: localhost
   run_once: true
 
 - name: Fetch k3s.yaml from remote server
   ansible.builtin.fetch:
     src: /etc/rancher/k3s/k3s.yaml
-    dest: "{{ lookup('env', 'HOME') }}/.kube/selfhost-config"
+    dest: "{{ kubeconfig_path }}"
     flat: true
   become: true
+  run_once: true
 
 - name: Replace localhost IP with public server IP in kubeconfig
   ansible.builtin.replace:
-    path: "{{ lookup('env', 'HOME') }}/.kube/selfhost-config"
+    path: "{{ kubeconfig_path }}"
     regexp: '127\.0\.0\.1'
-    replace: "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+    replace: "{{ ansible_host }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: Restrict kubeconfig permissions
+  ansible.builtin.file:
+    path: "{{ kubeconfig_path }}"
+    mode: "0600"
   delegate_to: localhost
   run_once: true
 
 - name: Print a notification
   ansible.builtin.debug:
-    msg: 
-      - "K8s confige retrieved. Use:"
-      - "export KUBECONFIG=~/.kube/selfhost-config"
+    msg:
+      - "Kubeconfig retrieved. Use:"
+      - "export KUBECONFIG={{ kubeconfig_path }}"
+  run_once: true

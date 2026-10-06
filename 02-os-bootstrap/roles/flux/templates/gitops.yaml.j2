@@ -1,0 +1,18 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata: { name: selfhost, namespace: flux-system }
+spec:
+  url: {{ flux_repo_url }}
+  ref: { branch: {{ flux_branch }} }
+  secretRef: { name: selfhost-deploy-key }
+  interval: 5m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata: { name: selfhost, namespace: flux-system }
+spec:
+  path: ./
+  sourceRef: { kind: GitRepository, name: selfhost }
+  decryption: { provider: sops, secretRef: { name: sops-age } }
+  interval: 10m
+  prune: true

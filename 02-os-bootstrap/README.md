@@ -6,9 +6,9 @@ Configures base OS settings, deploys the K3s cluster, and handles rolling update
 
 - ansible
 - ansible-galaxy
-- python3
+- python3 + kubernetes library
 - kubectl
-- invetory.ini formatted for k3s-ansible collection
+- inventory.ini formatted for k3s-ansible collection
 
 ```bash
 make install

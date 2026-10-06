@@ -18,3 +18,14 @@
     - get-kubeconfig
   roles:
     - get-kubeconfig
+
+- name: 04. Install Flux CD
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  module_defaults:
+    group/kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig_path }}"
+  roles:
+    - flux
+  tags: [flux]    

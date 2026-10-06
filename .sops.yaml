@@ -3,8 +3,8 @@ creation_rules:
   - path_regex: \.sops\.env$
     age: age1s7hkvapuyeup44gajxhc85vd0q4att0cd2t5ygpkffemhcchpqrslvqpdu
 
-  # plain YAML in Terraform: encrypt every value
-  - path_regex: 01-infra/.*\.sops\.ya?ml$
+  # plain YAML in Terraform and Ansible: encrypt every value
+  - path_regex: (01-infra|02-os-bootstrap)/.*\.sops\.ya?ml$
     age: age1s7hkvapuyeup44gajxhc85vd0q4att0cd2t5ygpkffemhcchpqrslvqpdu
 
   # Kubernetes Secrets: encrypt only data/stringData, keep kind/metadata readable

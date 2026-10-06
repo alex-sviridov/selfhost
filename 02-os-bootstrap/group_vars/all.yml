@@ -1,0 +1,1 @@
+kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/selfhost-config"

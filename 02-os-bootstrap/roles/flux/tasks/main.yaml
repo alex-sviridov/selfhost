@@ -1,0 +1,59 @@
+# 02-os-bootstrap/roles/flux/tasks/main.yml
+- name: Download Flux install manifest
+  ansible.builtin.get_url:
+    url: "https://github.com/fluxcd/flux2/releases/download/v{{ flux_version }}/install.yaml"
+    dest: "/tmp/flux-{{ flux_version }}.yaml"
+    mode: "0644"
+
+- name: Install Flux controllers
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    src: "/tmp/flux-{{ flux_version }}.yaml"
+    apply: true
+    server_side_apply:
+      field_manager: ansible
+      force_conflicts: true
+
+- name: Wait for Flux CRDs
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    kind: CustomResourceDefinition
+    name: "{{ item }}"
+    wait: true
+    wait_condition: { type: Established }
+  loop:
+    - gitrepositories.source.toolkit.fluxcd.io
+    - kustomizations.kustomize.toolkit.fluxcd.io
+
+- name: Load Flux secrets
+  ansible.builtin.set_fact:
+    flux_secrets: "{{ lookup('community.sops.sops', playbook_dir ~ '/flux.sops.yaml') | from_yaml }}"
+  no_log: true
+
+- name: Git deploy key
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata: { name: selfhost-deploy-key, namespace: flux-system }
+      stringData:
+        identity: "{{ flux_secrets.deploy_key }}"
+        known_hosts: "{{ lookup('pipe', 'ssh-keyscan github.com 2>/dev/null') }}"
+  no_log: true
+
+- name: SOPS age key
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata: { name: sops-age, namespace: flux-system }
+      stringData:
+        age.agekey: "{{ lookup('file', lookup('env', 'HOME') ~ '/.config/sops/age/keys.txt') }}"
+  no_log: true
+
+- name: Wire Flux to the repo
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    template: gitops.yaml.j2

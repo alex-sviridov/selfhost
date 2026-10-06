@@ -2,3 +2,4 @@
 *.key
 *.crt
 .env
+sops 02-os-bootstrap/flux.sops.yaml.env
