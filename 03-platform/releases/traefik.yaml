@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traefik-system
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: traefik
+  namespace: traefik-system
+spec:
+  url: https://traefik.github.io/charts   # use the URL from your helmfile
+  interval: 24h
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: traefik-system
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: traefik
+      version: 41.2.0
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    ports:
+      web:
+        port: 8000
+        expose:
+          default: true
+        exposedPort: 80
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
+        forwardedHeaders:
+          trustedIPs: &cloudflare_ips
+            - 173.245.48.0/20
+            - 103.21.244.0/22
+            - 103.22.200.0/22
+            - 103.31.4.0/22
+            - 141.101.64.0/18
+            - 108.162.192.0/18
+            - 190.93.240.0/20
+            - 188.114.96.0/20
+            - 197.234.240.0/22
+            - 198.41.128.0/17
+            - 162.158.0.0/15
+            - 104.16.0.0/13
+            - 104.24.0.0/14
+            - 172.64.0.0/13
+            - 131.0.72.0/22
+            - 2400:cb00::/32
+            - 2606:4700::/32
+            - 2803:f800::/32
+            - 2405:b500::/32
+            - 2405:8100::/32
+            - 2a06:98c0::/29
+            - 2c0f:f248::/32
+
+      websecure:
+        port: 8443
+        expose:
+          default: true
+        exposedPort: 443
+        http3:
+          enabled: true
+        forwardedHeaders:
+          trustedIPs: *cloudflare_ips
+
+    log:
+      level: "ERROR"
+      format: json
+
+    tlsStore:
+      default:
+        defaultCertificate:
+          secretName: cloudflare-origin-tls
+
+    additionalArguments:
+      - "--providers.kubernetesingress.ingressClass=traefik"
+      - "--ping=true"
+
+    providers:
+      kubernetesCRD:
+        allowCrossNamespace: true
