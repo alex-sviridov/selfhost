@@ -9,6 +9,9 @@ metadata:
   name: whoami
   namespace: whoami
 spec:
+  dependsOn:
+    - name: traefik
+      namespace: traefik-system
   interval: 30m
   chartRef:
     kind: HelmChart

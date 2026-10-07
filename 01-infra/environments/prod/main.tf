@@ -53,21 +53,10 @@ resource "local_sensitive_file" "ansible_inventory" {
 
 module "service_dns_name" {
   source        = "../../modules/dns_name"
-  create_certs  = true
   dns_zone_id   = local.dns_zone_id
   dns_zone_name = local.dns_zone_name
   dns_name      = local.service_dns_name
   target_ips    = { for k, v in module.host : k => v.ipv4_address }
   proxied       = true
   environment   = var.environment
-}
-
-resource "local_sensitive_file" "origin_ca_cert_pem" {
-  content = module.service_dns_name.origin_ca_cert_pem
-  filename = "${path.module}/../../../03-platform/files/cloudflare.crt"
-}
-
-resource "local_sensitive_file" "private_key_pem" {
-  content = module.service_dns_name.private_key_pem
-  filename = "${path.module}/../../../03-platform/files/cloudflare.key"
 }
