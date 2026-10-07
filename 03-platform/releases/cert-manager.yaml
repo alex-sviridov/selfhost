@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   name: cert-manager
 ---
-# cert-manager 
+# cert-manager
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -27,11 +27,45 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: jetstack
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
   values:
     crds:
       enabled: true
 ---
-# Cloudflare's Origin CA issuer controller
+# Cloudflare Origin CA issuer: CRDs (not shipped in the chart)
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: origin-ca-issuer
+  namespace: cert-manager
+spec:
+  url: https://github.com/cloudflare/origin-ca-issuer
+  ref:
+    tag: v0.15.0    # check the exact tag name on the repo's tags page
+  interval: 24h
+  ignore: |
+    /*
+    !/deploy/crds/
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: origin-ca-issuer-crds
+  namespace: cert-manager
+spec:
+  path: ./deploy/crds
+  sourceRef:
+    kind: GitRepository
+    name: origin-ca-issuer
+  interval: 1h
+  prune: false
+---
+# Cloudflare Origin CA issuer: controller
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
@@ -59,6 +93,8 @@ spec:
     kind: OCIRepository
     name: origin-ca-issuer
   install:
-    crds: CreateReplace
+    remediation:
+      retries: 3
   upgrade:
-    crds: CreateReplace
+    remediation:
+      retries: 3
