@@ -85,7 +85,7 @@ spec:
     tlsStore:
       default:
         defaultCertificate:
-          secretName: cloudflare-origin-tls
+          secretName: wildcard-tls
 
     additionalArguments:
       - "--providers.kubernetesingress.ingressClass=traefik"
@@ -94,3 +94,31 @@ spec:
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
+
+    
+    extraObjects:
+      - apiVersion: cert-manager.k8s.cloudflare.com/v1
+        kind: OriginIssuer
+        metadata:
+          name: cloudflare-origin
+        spec:
+          requestType: OriginECC
+          auth:
+            tokenRef:
+              name: platform-secrets
+              key: ORIGIN_CA_CLOUDFLARE_TOKEN
+      - apiVersion: cert-manager.io/v1
+        kind: Certificate
+        metadata:
+          name: wildcard
+        spec:
+          secretName: wildcard-tls
+          duration: 8760h
+          renewBefore: 720h
+          dnsNames:
+            - "${DNS_ZONE_NAME}"
+            - "*.${DNS_ZONE_NAME}"
+          issuerRef:
+            group: cert-manager.k8s.cloudflare.com
+            kind: OriginIssuer
+            name: cloudflare-origin
