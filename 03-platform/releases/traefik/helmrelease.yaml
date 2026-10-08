@@ -106,7 +106,7 @@ spec:
           auth:
             tokenRef:
               name: traefik-secrets
-              key: ORIGIN_CA_CLOUDFLARE_TOKEN
+              key: cloudflare_token
       - apiVersion: cert-manager.io/v1
         kind: Certificate
         metadata:

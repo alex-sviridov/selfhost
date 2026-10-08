@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - releases/cert-manager.yaml
   - releases/traefik
+  - releases/externaldns
