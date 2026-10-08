@@ -105,7 +105,7 @@ spec:
           requestType: OriginECC
           auth:
             tokenRef:
-              name: platform-secrets
+              name: traefik-secrets
               key: ORIGIN_CA_CLOUDFLARE_TOKEN
       - apiVersion: cert-manager.io/v1
         kind: Certificate
