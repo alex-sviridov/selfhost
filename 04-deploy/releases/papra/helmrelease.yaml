@@ -34,24 +34,33 @@ spec:
 
     ingress:
       - path: /
-        middlewares: 
+        middlewares:
           - name: strip-auth-headers
             namespace: oauth2-proxy
           - name: errors
             namespace: oauth2-proxy
           - name: auth
-            namespace: oauth2-proxy 
+            namespace: oauth2-proxy
 
     env:
-      - name: AUTH_SECRET
-        valueFrom:
-          secretKeyRef: { name: papra-secrets, key: auth-secret }
-    
       - name: APP_BASE_URL
         value: "https://docs.${DNS_ZONE_NAME}/"
 
       - name: DOCUMENTS_OCR_LANGUAGES
         value: "rus,eng,fra"
+      - name: AUTH_SECRET
+        valueFrom:
+          secretKeyRef: { name: papra-secrets, key: auth-secret }
+      - name: AUTH_PROVIDERS_EMAIL_IS_ENABLED
+        value: "false"
+      - name: AUTH_PROVIDERS_GITHUB_IS_ENABLED
+        value: "true"
+      - name: AUTH_PROVIDERS_GITHUB_CLIENT_ID
+        valueFrom:
+          secretKeyRef: { name: papra-secrets, key: github-client-id }
+      - name: AUTH_PROVIDERS_GITHUB_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef: { name: papra-secrets, key: github-client-secret }
 
     resources:
       requests:
