@@ -4,11 +4,6 @@ metadata:
   name: taskframe-backend
   namespace: taskframe
 spec:
-  dependsOn:
-    - name: traefik
-      namespace: traefik-system
-    - name: oauth2
-      namespace: traefik-system
   interval: 30m
   chartRef:
     kind: HelmChart
