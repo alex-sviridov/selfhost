@@ -1,0 +1,21 @@
+appName: lexi-landing
+
+image:
+  repository: sviridov12/lexi
+  tag: landing-sha-4c8443de0cf0346c17de075ce97073104d8d48ed
+
+service:
+  port: 8080
+
+ingressHost: lexi.sviridov.lu 
+
+ingress:
+  - path: /landing
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "100m"

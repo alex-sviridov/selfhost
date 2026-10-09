@@ -1,0 +1,45 @@
+appName: papra
+
+image:
+  repository: ghcr.io/papra-hq/papra
+  tag: 26.6.2-rootless
+
+service:
+  port: 1221
+  
+dnsTarget: "{{ requiredEnv "SERVICE_HOSTNAME" }}"
+ingressHost: "docs.{{ requiredEnv "TF_VAR_dns_zone_name" }}"
+
+ingress:
+  - path: /
+    middlewares: 
+      - name: strip-auth-headers
+        namespace: oauth2-proxy
+      - name: errors
+        namespace: oauth2-proxy
+      - name: auth
+        namespace: oauth2-proxy 
+
+env:
+  - name: AUTH_SECRET
+    value: "{{ requiredEnv "PAPERLESS_SECRET_KEY" }}"
+ 
+  - name: APP_BASE_URL
+    value: "https://docs.{{ requiredEnv "TF_VAR_dns_zone_name" }}"
+
+  - name: DOCUMENTS_OCR_LANGUAGES
+    value: "rus,eng,fra"
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "50m"
+  limits:
+    memory: "512Mi"
+    cpu: "300m"
+
+storage:
+  data:
+    mountPath: /app/app-data
+    accessMode: ReadWriteOnce
+    size: 500Mi

@@ -13,13 +13,6 @@ releases:
     values:
       - ./releases/audiobookshelf/values.yaml.gotmpl
 
-  - name: whoami
-    namespace: whoami
-    inherit:
-      - template: default
-    values:
-      - ./releases/whoami/values.yaml
-
   - name: paperless-redis
     namespace: paperless
     inherit:
@@ -62,3 +55,40 @@ releases:
       - template: default
     values:
       - ./releases/readtrail/frontend-values.yaml
+
+  - name: papra
+    namespace: papra
+    chart: ./charts/base-app
+    inherit:
+      - template: default
+    values:
+      - ./releases/papra/values.yaml.gotmpl
+
+
+  - name: lexi-backend
+    namespace: lexi
+    inherit:
+      - template: default
+    values:
+      - ./releases/lexi/backend.yaml.gotmpl
+
+  - name: lexi-vocabulary
+    namespace: lexi
+    inherit:
+      - template: default
+    values:
+      - ./releases/lexi/vocabulary.yaml
+
+  - name: lexi-landing
+    namespace: lexi
+    inherit:
+      - template: default
+    values:
+      - ./releases/lexi/landing.yaml
+
+  - name: lexi-admin
+    namespace: lexi
+    inherit:
+      - template: default
+    values:
+      - ./releases/lexi/admin.yaml
