@@ -19,9 +19,14 @@ spec:
           {{- $backupVolumes = append $backupVolumes $name }}
         {{- end }}
       {{- end }}
-      {{- if $backupVolumes }}
+      {{- if or $backupVolumes .Values.secrets }}
       annotations:
+        {{- if $backupVolumes }}
         backup.velero.io/backup-volumes: {{ join "," $backupVolumes }}
+        {{- end }}
+        {{- if .Values.secrets }}
+        checksum/secrets: {{ toJson .Values.secrets | sha256sum }}
+        {{- end }}
       {{- end }}
     spec:
       containers:
@@ -37,6 +42,12 @@ spec:
             limits:
               memory: {{ .Values.resources.limits.memory | default "512Mi" }}
               cpu: {{ .Values.resources.limits.cpu | default "1" }}
+
+          {{- if .Values.secrets }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.appName }}-secrets
+          {{- end }}
 
           {{- if .Values.env }}
           env:

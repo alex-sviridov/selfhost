@@ -4,3 +4,4 @@ resources:
   - charts/base-app.yaml
   - releases/whoami.yaml
   - releases/audiobookshelf.yaml
+  - releases/paperless
