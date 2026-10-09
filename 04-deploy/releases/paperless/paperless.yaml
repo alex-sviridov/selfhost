@@ -7,6 +7,10 @@ spec:
   interval: 30m
   dependsOn:
     - name: paperless-redis
+    - name: traefik
+      namespace: traefik-system
+    - name: oauth2-proxy
+      namespace: oauth2-proxy
   chartRef:
     kind: HelmChart
     name: base-app
