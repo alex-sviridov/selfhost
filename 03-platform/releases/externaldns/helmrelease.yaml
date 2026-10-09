@@ -18,10 +18,10 @@ metadata:
   name: externaldns
   namespace: external-dns
 spec:
-  interval: 30m
   dependsOn:
     - name: traefik
       namespace: traefik-system
+  interval: 30m
   chart:
     spec:
       chart: external-dns
