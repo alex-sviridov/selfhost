@@ -24,6 +24,7 @@ spec:
     service:
       port: 8080
 
+    ingressHost: "${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"
     ingress:
       - path: /task
         stripPrefix: true
