@@ -14,7 +14,7 @@ spec:
 
     image:
       repository: sviridov12/lexi
-      tag: backend-sha-4c8443de0cf0346c17de075ce97073104d8d48ed
+      tag: backend-sha-3ed6c4d1784302b85d56be044b6a2e644848e508
 
     service:
       port: 8090
@@ -38,7 +38,11 @@ spec:
         accessMode: ReadWriteOnce
         size: 2Gi
 
-    secrets:
+    env:
       CLAUDE_API_KEY:
         valueFrom:
           secretKeyRef: { name: lexi-secrets, key: claude-api-key }
+
+      PIXABAY_API_KEY:
+        valueFrom:
+          secretKeyRef: { name: lexi-secrets, key: pixabay-api-key }

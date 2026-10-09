@@ -6,3 +6,4 @@ resources:
   - admin.yaml
   - landing.yaml
   - vocabulary.yaml
+  - secret.sops.yaml

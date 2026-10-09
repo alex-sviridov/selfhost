@@ -43,16 +43,17 @@ spec:
               memory: {{ .Values.resources.limits.memory | default "512Mi" }}
               cpu: {{ .Values.resources.limits.cpu | default "1" }}
 
-          {{- if .Values.secrets }}
-          envFrom:
-            - secretRef:
-                name: {{ .Values.appName }}-secrets
-          {{- end }}
-
-          {{- if .Values.env }}
+          {{- with .Values.env }}
           env:
-            {{- toYaml .Values.env | nindent 12 }}
-          {{- end }}              
+            {{- range $name, $value := . }}
+            - name: {{ $name }}
+              {{- if kindIs "map" $value }}
+              {{- toYaml $value | nindent 14 }}
+              {{- else }}
+              value: {{ $value | quote }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
 
           {{- if .Values.storage }}
           volumeMounts:
