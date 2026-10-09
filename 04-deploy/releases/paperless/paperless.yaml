@@ -13,8 +13,6 @@ spec:
     namespace: flux-system
   values:
     appName: paperless
-    dnsZone: "${DNS_ZONE_NAME}"
-    ingressSubdomain: "${SERVICE_DNS_NAME}"
     image:
       repository: ghcr.io/paperless-ngx/paperless-ngx
       tag: 3.0.5
