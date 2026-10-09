@@ -12,6 +12,8 @@ spec:
   dependsOn:
     - name: traefik
       namespace: traefik-system
+    - name: oauth2-proxy
+      namespace: oauth2-proxy
   interval: 30m
   chartRef:
     kind: HelmChart
