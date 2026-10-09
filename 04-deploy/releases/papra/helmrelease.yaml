@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: papra
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: papra
+  namespace: papra
+spec:
+  dependsOn:
+    - name: traefik
+      namespace: traefik-system
+    - name: oauth2-proxy
+      namespace: oauth2-proxy
+  interval: 30m
+  chartRef:
+    kind: HelmChart
+    name: base-app
+    namespace: flux-system
+  values:
+    ingressHost: "docs.${DNS_ZONE_NAME}"
+    appName: papra
+
+    image:
+      repository: ghcr.io/papra-hq/papra
+      tag: 26.6.2-rootless
+
+    service:
+      port: 1221
+      
+    dnsTarget: "${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"
+
+    ingress:
+      - path: /
+        middlewares: 
+          - name: strip-auth-headers
+            namespace: oauth2-proxy
+          - name: errors
+            namespace: oauth2-proxy
+          - name: auth
+            namespace: oauth2-proxy 
+
+    env:
+      - name: AUTH_SECRET
+        valueFrom:
+          secretKeyRef: { name: papra-secrets, key: auth-secret }
+    
+      - name: APP_BASE_URL
+        value: "https://docs.${DNS_ZONE_NAME}/"
+
+      - name: DOCUMENTS_OCR_LANGUAGES
+        value: "rus,eng,fra"
+
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "50m"
+      limits:
+        memory: "512Mi"
+        cpu: "300m"
+
+    storage:
+      data:
+        mountPath: /app/app-data
+        accessMode: ReadWriteOnce
+        size: 500Mi
