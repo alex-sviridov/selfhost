@@ -1,21 +1,33 @@
-appName: lexi-frontend
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: lexi-vocabulary
+  namespace: lexi
+spec:
+  interval: 30m
+  chartRef:
+    kind: HelmChart
+    name: base-app
+    namespace: flux-system
+  values:
+    appName: lexi-vocabulary
 
-image:
-  repository: sviridov12/lexi
-  tag: vocabulary-sha-4c8443de0cf0346c17de075ce97073104d8d48ed
+    image:
+      repository: sviridov12/lexi
+      tag: vocabulary-sha-4c8443de0cf0346c17de075ce97073104d8d48ed
 
-service:
-  port: 8080
+    service:
+      port: 8080
 
-ingressHost: lexi.sviridov.lu 
+    ingressHost: "lexi.${DNS_ZONE_NAME}"
 
-ingress:
-  - path: /
+    ingress:
+      - path: /
 
-resources:
-  requests:
-    memory: "64Mi"
-    cpu: "50m"
-  limits:
-    memory: "128Mi"
-    cpu: "100m"
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "500m"

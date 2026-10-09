@@ -1,0 +1,44 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: lexi-backend
+  namespace: lexi
+spec:
+  interval: 30m
+  chartRef:
+    kind: HelmChart
+    name: base-app
+    namespace: flux-system
+  values:
+    appName: lexi-backend
+
+    image:
+      repository: sviridov12/lexi
+      tag: backend-sha-4c8443de0cf0346c17de075ce97073104d8d48ed
+
+    service:
+      port: 8090
+
+    ingressHost: "lexi.${DNS_ZONE_NAME}"
+    ingress:
+    - path: /api/
+      stripPrefix: false
+
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "1"
+
+    storage:
+      data:
+        mountPath: /app/pb_data
+        accessMode: ReadWriteOnce
+        size: 2Gi
+
+    secrets:
+      CLAUDE_API_KEY:
+        valueFrom:
+          secretKeyRef: { name: lexi-secrets, key: claude-api-key }
