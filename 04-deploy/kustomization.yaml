@@ -5,3 +5,4 @@ resources:
   - releases/whoami.yaml
   - releases/audiobookshelf.yaml
   - releases/paperless
+  - releases/taskframe
