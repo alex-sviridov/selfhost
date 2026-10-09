@@ -6,3 +6,4 @@ resources:
   - releases/audiobookshelf.yaml
   - releases/paperless
   - releases/taskframe
+  - releases/readtrail
