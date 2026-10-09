@@ -5,5 +5,5 @@ resources:
   - secret.sops.yaml
   - helmrelease.yaml
   - template.yaml
-  - ingress.yaml
+  - ingressroute.yaml
   - middlewares.yaml

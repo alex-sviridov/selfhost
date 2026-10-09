@@ -41,7 +41,7 @@ spec:
         cookie_samesite = "lax"
 
         upstreams = ["static://200"]
-        redirect_url = "https://${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}/oauth2/callback"
+        redirect_url = "https://auth.${DNS_ZONE_NAME}/oauth2/callback"
 
         scope = "read:user user:email read:org"
 
@@ -53,7 +53,8 @@ spec:
         cookie_name = "_oauth2_proxy"
         cookie_refresh = "2m"
         cookie_expire = "24h"
-        whitelist_domains = ["${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"]
+        cookie_domains = [".${DNS_ZONE_NAME}"]
+        whitelist_domains = [".${DNS_ZONE_NAME}"]
 
         set_xauthrequest = true
     extraEnv:

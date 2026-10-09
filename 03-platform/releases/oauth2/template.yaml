@@ -13,7 +13,7 @@ data:
             if (!target || target === "/") {
                 target = window.location.href;
             }
-            window.location.replace("/oauth2/start?rd=" + encodeURIComponent(target));
+            window.location.replace("https://auth.${DNS_ZONE_NAME}/oauth2/start?rd=" + encodeURIComponent(target));
         </script>
     </head>
     <body style="background-color: #111;"></body>
