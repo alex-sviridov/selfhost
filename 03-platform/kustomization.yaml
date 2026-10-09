@@ -5,3 +5,4 @@ resources:
   - releases/traefik
   - releases/externaldns
   - releases/oauth2
+  - releases/velero
