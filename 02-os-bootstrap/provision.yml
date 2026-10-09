@@ -10,6 +10,8 @@
 
 - name: 02. Deploy K3s Cluster via official orchestration
   import_playbook: k3s.orchestration.site
+  tags:
+    - k3s
 
 - name: 03. Fetch and configure local kubeconfig
   hosts: k3s_cluster
@@ -19,7 +21,19 @@
   roles:
     - get-kubeconfig
 
-- name: 04. Install Flux CD
+- name: 04. Install basic platform conponents
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  module_defaults:
+    group/kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig_path }}"
+  roles:
+    - platform
+  tags:
+    - platform
+
+- name: 05. Install Flux CD
   hosts: localhost
   connection: local
   gather_facts: false

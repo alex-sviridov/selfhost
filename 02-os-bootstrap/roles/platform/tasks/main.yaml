@@ -1,0 +1,26 @@
+- name: Read Traefik definition from the platform layer
+  ansible.builtin.set_fact:
+    traefik_docs: "{{ lookup('file', playbook_dir ~ '/../03-platform/releases/traefik/helmrelease.yaml') | from_yaml_all | list }}"
+
+- name: Extract chart version and repository
+  ansible.builtin.set_fact:
+    traefik_chart_version: "{{ (traefik_docs | selectattr('kind', 'equalto', 'HelmRelease') | first).spec.chart.spec.version }}"
+    traefik_repo_url: "{{ (traefik_docs | selectattr('kind', 'equalto', 'HelmRepository') | first).spec.url }}"
+
+- name: Check whether Traefik is installed
+  kubernetes.core.helm_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    name: traefik
+    release_namespace: traefik-system
+  register: traefik_release
+
+- name: Bootstrap Traefik (Flux takes over afterwards)
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig_path }}"
+    name: traefik
+    chart_ref: traefik
+    chart_repo_url: "{{ traefik_repo_url }}"
+    chart_version: "{{ traefik_chart_version }}"
+    release_namespace: traefik-system
+    create_namespace: true
+  when: traefik_release.status is not defined
