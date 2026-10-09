@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oauth2-custom-templates
+  namespace: oauth2-proxy
+data:
+  sign_in.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script>
+            var target = "{{.Redirect}}";
+            if (!target || target === "/") {
+                target = window.location.href;
+            }
+            window.location.replace("/oauth2/start?rd=" + encodeURIComponent(target));
+        </script>
+    </head>
+    <body style="background-color: #111;"></body>
+    </html>

@@ -4,3 +4,4 @@ resources:
   - releases/cert-manager.yaml
   - releases/traefik
   - releases/externaldns
+  - releases/oauth2

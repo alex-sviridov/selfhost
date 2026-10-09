@@ -1,0 +1,72 @@
+# helmrelease.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: oauth2-proxy
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: oauth2-proxy
+  namespace: oauth2-proxy
+spec:
+  url: https://oauth2-proxy.github.io/manifests
+  interval: 24h
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy        
+  namespace: oauth2-proxy
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: oauth2-proxy
+      version: "8.3.0"
+      sourceRef:
+        kind: HelmRepository
+        name: oauth2-proxy
+  values:
+    config:
+      existingSecret: oauth2-secret
+      configFile: |
+        provider_display_name = "GitHub"
+        provider = "github"
+        email_domains = ["*"]
+
+        cookie_secure = true
+        cookie_samesite = "lax"
+
+        upstreams = ["static://200"]
+        redirect_url = "https://${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}/oauth2/callback"
+
+        scope = "read:user user:email read:org"
+
+        pass_access_token = true
+        pass_authorization_header = true
+        pass_user_headers = true
+        set_authorization_header = true
+
+        cookie_name = "_oauth2_proxy"
+        cookie_refresh = "2m"
+        cookie_expire = "24h"
+        whitelist_domains = ["${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"]
+
+        set_xauthrequest = true
+    extraEnv:
+      - name: OAUTH2_PROXY_GITHUB_USERS
+        valueFrom:
+          secretKeyRef:
+            name: oauth2-secret
+            key: github-users
+    extraArgs:
+      - --reverse-proxy=true
+      - --custom-templates-dir=/app/custom-templates
+    extraVolumes:
+      - name: custom-templates
+        configMap:
+          name: oauth2-custom-templates
+    extraVolumeMounts:
+      - name: custom-templates
+        mountPath: /app/custom-templates
