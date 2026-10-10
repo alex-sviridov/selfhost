@@ -17,23 +17,24 @@ spec:
     namespace: flux-system
   values:
     appName: paperless
-    ingressHost: "${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"
+    dnsTarget: "${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"
+    ingressHost: "docs.${DNS_ZONE_NAME}"
     image:
       repository: ghcr.io/paperless-ngx/paperless-ngx
       tag: 3.0.5
     service:
       port: 8000
     ingress:
-      - path: /docs/api
+      - path: /api
         extraMatch: "HeaderRegexp(`User-Agent`, `QuickScan`)"
         middlewares:
           - name: strip-auth-headers
             namespace: oauth2-proxy
-      - path: /docs/ws
+      - path: /ws
         middlewares:
           - name: strip-auth-headers
             namespace: oauth2-proxy
-      - path: /docs
+      - path: /
         middlewares:
           - name: strip-auth-headers
             namespace: oauth2-proxy
@@ -42,51 +43,33 @@ spec:
           - name: auth
             namespace: oauth2-proxy
     env:
-      - name: PAPERLESS_REDIS
-        value: "redis://paperless-redis-svc:6379"
-      - name: PAPERLESS_FORCE_SCRIPT_NAME
-        value: "/docs"
-      - name: PAPERLESS_URL
-        value: "https://${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"
-      - name: PAPERLESS_CSRF_TRUSTED_ORIGINS
-        value: "https://${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"
-      - name: PAPERLESS_CORS_ALLOWED_HOSTS
-        value: "https://${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}"
-      - name: PAPERLESS_LOGOUT_REDIRECT_URL
-        value: "https://${SERVICE_DNS_NAME}.${DNS_ZONE_NAME}/oauth2/sign_out"
-      - name: PAPERLESS_SECRET_KEY
+      PAPERLESS_SECRET_KEY:
         valueFrom:
           secretKeyRef: { name: paperless-secrets, key: PAPERLESS_SECRET_KEY }
-      - name: PAPERLESS_ADMIN_USER
+      PAPERLESS_ADMIN_USER:
         valueFrom:
           secretKeyRef: { name: paperless-secrets, key: PAPERLESS_ADMIN_USER }
-      - name: PAPERLESS_ADMIN_PASSWORD
+      PAPERLESS_ADMIN_PASSWORD:
         valueFrom:
           secretKeyRef: { name: paperless-secrets, key: PAPERLESS_ADMIN_PASSWORD }
-      - name: PAPERLESS_PORT
-        value: "8000"
-      - name: PAPERLESS_USE_X_FORWARD_HOST
-        value: "true"
-      - name: PAPERLESS_ENABLE_COMPRESSION
-        value: "false"
-      - name: PAPERLESS_CONVERT_MEMORY_LIMIT
-        value: "32"
-      - name: PAPERLESS_CONSUMER_DISABLE
-        value: "true"
-      - name: PAPERLESS_TIME_ZONE
-        value: "Europe/Luxembourg"
-      - name: PAPERLESS_ENABLE_HTTP_REMOTE_USER
-        value: "true"
-      - name: PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME
-        value: "HTTP_X_AUTH_REQUEST_USER"
-      - name: PAPERLESS_DISABLE_REGULAR_LOGIN
-        value: "true"
-      - name: PAPERLESS_OCR_LANGUAGES
-        value: "rus eng fra"
-      - name: PAPERLESS_OCR_LANGUAGE
-        value: "rus"
-      - name: PAPERLESS_FILENAME_FORMAT
-        value: "{created_year}/{correspondent}/{title}"
+      PAPERLESS_REDIS: "redis://paperless-redis-svc:6379"
+      PAPERLESS_FORCE_SCRIPT_NAME: "/docs"
+      PAPERLESS_URL: "https://docs.${DNS_ZONE_NAME}"
+      PAPERLESS_CSRF_TRUSTED_ORIGINS: "https://docs.${DNS_ZONE_NAME}"
+      PAPERLESS_CORS_ALLOWED_HOSTS: "https://docs.${DNS_ZONE_NAME}"
+      PAPERLESS_LOGOUT_REDIRECT_URL: "https://auth.${DNS_ZONE_NAME}/oauth2/sign_out"
+      PAPERLESS_PORT: "8000"
+      PAPERLESS_USE_X_FORWARD_HOST: "true"
+      PAPERLESS_ENABLE_COMPRESSION: "false"
+      PAPERLESS_CONVERT_MEMORY_LIMIT: "32"
+      PAPERLESS_CONSUMER_DISABLE: "true"
+      PAPERLESS_TIME_ZONE: "Europe/Luxembourg"
+      PAPERLESS_ENABLE_HTTP_REMOTE_USER: "true"
+      PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME: "HTTP_X_AUTH_REQUEST_USER"
+      PAPERLESS_DISABLE_REGULAR_LOGIN: "true"
+      PAPERLESS_OCR_LANGUAGES: "rus eng fra"
+      PAPERLESS_OCR_LANGUAGE: "rus"
+      PAPERLESS_FILENAME_FORMAT: "{created_year}/{correspondent}/{title}"
     resources:
       requests:
         memory: "512Mi"
