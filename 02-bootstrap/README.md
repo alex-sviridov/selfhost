@@ -14,11 +14,14 @@ Configures base OS settings, deploys the K3s cluster, and handles rolling update
 make install
 ```
 
+## SOPS data required
+
+TBD
+
 ## Day-1: Configuration Management / Bootstrapping
 
 ```bash
 make provision
-export KUBECONFIG=~/.kube/selfhost-config
 ```
 
 ## Day-2: Maintenance

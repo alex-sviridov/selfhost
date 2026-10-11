@@ -1,20 +1,11 @@
 # Applications Deployment
 
-Deploys user-facing applications via Helm and Kustomize.
+Deploys user-facing applications via FluxCD. 
 
 ## Prerequisites
 
-- [helm](https://helm.sh/docs/intro/install/)
-- [helmfile](https://helmfile.readthedocs.io/en/latest/#installation)
+- Flux configured on stage 02-bootstrap
 
-## Environment variables required
+## SOPS data required
 
-- **SERVICE_HOSTNAME**: web service FQDN
-
-## Run
-
-```bash
-set -o allexport && source ../.env && set +o allexport
-helmfile init --force
-helmfile apply
-```
+TBD
