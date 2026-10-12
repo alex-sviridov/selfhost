@@ -14,7 +14,7 @@ spec:
 
     image:
       repository: sviridov12/lexi
-      tag: adminui-sha-3ed6c4d1784302b85d56be044b6a2e644848e508
+      tag: adminui-sha-3d28a4621cce19977c3e1c2be8b5c46e26d6b04e
 
     service:
       port: 8080
