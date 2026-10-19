@@ -7,3 +7,4 @@ resources:
   - landing.yaml
   - vocabulary.yaml
   - secret.sops.yaml
+  - kanner.yaml
