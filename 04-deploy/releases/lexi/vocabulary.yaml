@@ -14,7 +14,7 @@ spec:
 
     image:
       repository: sviridov12/lexi
-      tag: vocabulary-sha-3d28a4621cce19977c3e1c2be8b5c46e26d6b04e
+      tag: vocabulary-sha-6f77d0dc4222ac7b92bc25044f6f54bca0d94224
 
     service:
       port: 8080

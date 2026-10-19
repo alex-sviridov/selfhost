@@ -14,7 +14,7 @@ spec:
 
     image:
       repository: sviridov12/lexi
-      tag: backend-sha-3ed6c4d1784302b85d56be044b6a2e644848e508
+      tag: backend-sha-5e117d74ae32ce7e39e9bb78283b6e7509d2232c
 
     service:
       port: 8090
