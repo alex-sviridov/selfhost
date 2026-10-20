@@ -14,7 +14,7 @@ spec:
 
     image:
       repository: sviridov12/lexi
-      tag: landing-sha-6f77d0dc4222ac7b92bc25044f6f54bca0d94224
+      tag: landing-sha-71388818ef00eb38ef91d8ee3ef74566a515eab9
 
     service:
       port: 8080
