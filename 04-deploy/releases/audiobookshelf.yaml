@@ -33,14 +33,10 @@ spec:
         stripPrefix: true
 
     env:
-      - name: TZ
-        value: "Europe/Luxembourg"
-      - name: HOST
-        value: "0.0.0.0"
-      - name: PORT
-        value: "8080"
-      - name: REFRESH_TOKEN_EXPIRY
-        value: "4838400"
+      TZ: "Europe/Luxembourg"
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      REFRESH_TOKEN_EXPIRY: "4838400"
 
     resources:
       requests:

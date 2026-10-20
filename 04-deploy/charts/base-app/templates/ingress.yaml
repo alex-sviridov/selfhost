@@ -3,6 +3,8 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: {{ .Values.appName }}-ingressroute
+  labels:
+    app.kubernetes.io/name: {{ .Values.appName }}
   {{- if .Values.dnsTarget }}
   annotations:
     external-dns.kubernetes.io/target: {{ .Values.dnsTarget | quote }}

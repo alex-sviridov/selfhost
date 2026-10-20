@@ -1,8 +1,11 @@
+{{- $appName := .Values.appName -}}
 {{- range $name, $pvc := .Values.storage }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ $.Values.appName }}-{{ $name }}-pvc
+  name: {{ $appName }}-{{ $name }}-pvc
+  labels:
+    app.kubernetes.io/name: {{ $appName }}
 spec:
   accessModes:
     - {{ $pvc.accessMode | default "ReadWriteOnce" }}
