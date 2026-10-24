@@ -14,7 +14,7 @@ spec:
 
     image:
       repository: sviridov12/lexi
-      tag: kanner-sha-71388818ef00eb38ef91d8ee3ef74566a515eab9
+      tag: kanner-0.7.3
 
     service:
       port: 8080
