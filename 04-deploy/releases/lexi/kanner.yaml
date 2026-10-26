@@ -1,6 +1,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
   name: lexi-kanner
   namespace: lexi
 spec:
