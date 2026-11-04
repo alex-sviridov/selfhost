@@ -1,8 +1,21 @@
 ---
+private_iface: >-
+  {{ ansible_facts | dict2items
+     | selectattr('value.ipv4.address', 'defined')
+     | selectattr('value.ipv4.address', 'equalto', private_ip)
+     | map(attribute='key') | first }}
+
 k3s_version: v1.36.3+k3s1
 token: "{{ k3s_token }}"
-api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] | default(groups['server'][0]) }}"
+api_endpoint: "{{ hostvars[groups['server'][0]]['private_ip'] }}"
 extra_server_args: >-
   --disable=traefik
+  --node-ip={{ private_ip }}
+  --node-external-ip={{ ansible_default_ipv4.address }}
+  --flannel-iface={{ private_iface }}
   --tls-san={{ ansible_host }}
   --tls-san={{ ansible_tailscale0.ipv4.address }}
+extra_agent_args: >-
+  --node-ip={{ private_ip }}
+  --node-external-ip={{ ansible_default_ipv4.address }}
+  --flannel-iface={{ private_iface }}

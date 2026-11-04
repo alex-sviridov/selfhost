@@ -44,6 +44,11 @@ resource "hcloud_firewall" "node" {
 
 }
 
+resource "hcloud_server_network" "node" {
+  server_id  = hcloud_server.node.id
+  network_id = var.network_id
+}
+
 resource "hcloud_primary_ip" "node_ipv4" {
   name        = "${var.name}-ipv4"
   location    = var.location

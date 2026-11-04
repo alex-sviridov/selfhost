@@ -8,6 +8,10 @@ variable "name" {
   type        = string
 }
 
+variable "network_id" {
+  type = string
+}
+
 variable "dns_zone_name" {
   description = "DNS zone name, used to build FQDN (e.g. example.com)"
   type        = string

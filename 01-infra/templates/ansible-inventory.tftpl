@@ -1,14 +1,14 @@
 [server]
 %{ for host in hosts ~}
 %{ if host.role == "server" ~}
-${host.name} ansible_host=${host.name} fqdn=${host.fqdn} ansible_user=admin ansible_become=true
+${host.name} ansible_host=${host.name} fqdn=${host.fqdn}  private_ip=${host.private_ip} ansible_user=admin ansible_become=true
 %{ endif ~}
 %{ endfor ~}
 
 [agent]
 %{ for host in hosts ~}
 %{ if host.role == "agent" ~}
-${host.name} ansible_host=${host.name} fqdn=${host.fqdn} ansible_user=admin ansible_become=true
+${host.name} ansible_host=${host.name} fqdn=${host.fqdn}  private_ip=${host.private_ip} ansible_user=admin ansible_become=true
 %{ endif ~}
 %{ endfor ~}
 

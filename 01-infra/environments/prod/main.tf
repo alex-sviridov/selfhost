@@ -38,6 +38,17 @@ resource "tailscale_tailnet_key" "node" {
   tags          = ["tag:server"]
 }
 
+resource "hcloud_network" "cluster" {
+  name     = "${var.environment}-cluster"
+  ip_range = "10.0.0.0/16"
+}
+
+resource "hcloud_network_subnet" "nodes" {
+  network_id   = hcloud_network.cluster.id
+  type         = "cloud"
+  network_zone = "eu-central"
+  ip_range     = "10.0.1.0/24"
+}
 
 module "host" {
   count           = length(var.nodes)
@@ -48,6 +59,7 @@ module "host" {
   ssh_public_keys = local.ssh_public_keys
   ssh_key_ids     = hcloud_ssh_key.admin[*].id
   allowed_ssh_ips = local.allowed_ssh_ips
+  network_id = hcloud_network_subnet.nodes.network_id
   tailscale_auth_key = tailscale_tailnet_key.node[count.index].key
   dns_zone_id     = local.dns_zone_id
   dns_zone_name   = local.dns_zone_name
@@ -64,6 +76,7 @@ resource "local_sensitive_file" "ansible_inventory" {
         ip   = h.ipv4_address
         fqdn = h.fqdn
         role = var.nodes[i].role
+        private_ip = h.private_ip
       }
     ]
   })
