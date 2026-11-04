@@ -4,22 +4,12 @@ variable "environment" {
   default     = "prod"
 }
 
-variable "server_count" {
-  type        = number
-  default     = 1
-  description = "Count of servers to create"
-}
-
-variable "server_type" {
-  description = "Hetzner server type"
-  type        = string
-  default     = "cx23"
-}
-
-variable "server_location" {
-  description = "Hetzner datacenter location"
-  type        = string
-  default     = "nbg1"
+variable "nodes" {
+  type = list(object({
+    role        = string 
+    location    = string
+    server_type = string
+  }))
 }
 
 variable "server_image" {

@@ -1,9 +1,16 @@
 [server]
 %{ for host in hosts ~}
-${host.name} ansible_host=${host.ip} fqdn=${host.fqdn} ansible_user=admin ansible_become=true
+%{ if host.role == "server" ~}
+${host.name} ansible_host=${host.name} fqdn=${host.fqdn} ansible_user=admin ansible_become=true
+%{ endif ~}
 %{ endfor ~}
 
 [agent]
+%{ for host in hosts ~}
+%{ if host.role == "agent" ~}
+${host.name} ansible_host=${host.name} fqdn=${host.fqdn} ansible_user=admin ansible_become=true
+%{ endif ~}
+%{ endfor ~}
 
 [k3s_cluster:children]
 server

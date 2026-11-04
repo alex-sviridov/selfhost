@@ -2,12 +2,6 @@ locals {
   node_fqdn = "${var.dns_name}.${var.dns_zone_name}"
 }
 
-resource "hcloud_ssh_key" "admin" {
-  count      = length(var.ssh_public_keys)
-  name       = "${var.name}-admin-${count.index}"
-  public_key = var.ssh_public_keys[count.index]
-}
-
 resource "hcloud_firewall" "node" {
   name = "${var.name}-fw"
   rule {
@@ -67,7 +61,7 @@ resource "hcloud_server" "node" {
   server_type = var.server_type
   image       = var.image
   location    = var.location
-  ssh_keys    = hcloud_ssh_key.admin[*].id
+  ssh_keys    = var.ssh_key_ids 
 
   firewall_ids = [hcloud_firewall.node.id]
 
@@ -82,12 +76,18 @@ resource "hcloud_server" "node" {
     environment     = var.environment
     node_fqdn       = local.node_fqdn
     ssh_public_keys = var.ssh_public_keys
+    tailscale_auth_key = var.tailscale_auth_key
   })
 
   labels = {
     project = "selfhost"
     env     = var.environment
     role    = "k3s-server"
+  }
+
+
+  lifecycle {
+    ignore_changes = [ssh_keys, image, user_data]
   }
 }
 

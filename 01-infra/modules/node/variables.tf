@@ -1,3 +1,8 @@
+variable "tailscale_auth_key" {
+  type      = string
+  sensitive = true
+}
+
 variable "name" {
   description = "Server name and base for resource labels"
   type        = string
@@ -39,6 +44,11 @@ variable "image" {
 variable "ssh_public_keys" {
   description = "SSH public keys for admin access to the node"
   type        = list(string)
+}
+
+variable "ssh_key_ids" {
+  description = "SSH public keys for admin access to the node"
+  type = list(string)
 }
 
 variable "allowed_ssh_ips" {

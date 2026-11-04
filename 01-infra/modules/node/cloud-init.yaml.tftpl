@@ -16,9 +16,11 @@ users:
       - ${key}
 %{ endfor ~}
 
-# Если нужно отрубить пароли прямо на старте
+# remove password auth
 ssh_pwauth: false
 
-# Обновляем контексты SELinux, если затронули систему
+# restore se contexts and install tailscale
 runcmd:
   - restorecon -R /home/admin/.ssh
+  - curl -fsSL https://tailscale.com/install.sh | sh
+  - tailscale up --auth-key=${tailscale_auth_key} --hostname=${node_name} --advertise-tags=tag:server 

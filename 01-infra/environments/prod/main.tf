@@ -18,37 +18,56 @@ locals {
 }
 
 resource "random_pet" "server_name" {
-  count     = var.server_count
+  count     = length(var.nodes)
   length    = 1
   separator = "-"
 }
 
+resource "hcloud_ssh_key" "admin" {
+  count      = length(local.ssh_public_keys)
+  name       = "${var.environment}-admin-${count.index}"
+  public_key = local.ssh_public_keys[count.index]
+}
+
+resource "tailscale_tailnet_key" "node" {
+  count         = length(var.nodes)
+  reusable      = false 
+  preauthorized = true
+  ephemeral     = false
+  expiry        = 3600  
+  tags          = ["tag:server"]
+}
+
+
 module "host" {
-  count           = var.server_count
+  count           = length(var.nodes)
   source          = "../../modules/node"
   name            = random_pet.server_name[count.index].id
   dns_name        = random_pet.server_name[count.index].id
   environment     = var.environment
   ssh_public_keys = local.ssh_public_keys
-  allowed_ssh_ips = local.config.allowed_ssh_ips
+  ssh_key_ids     = hcloud_ssh_key.admin[*].id
+  allowed_ssh_ips = local.allowed_ssh_ips
+  tailscale_auth_key = tailscale_tailnet_key.node[count.index].key
   dns_zone_id     = local.dns_zone_id
   dns_zone_name   = local.dns_zone_name
-  server_type     = var.server_type
-  location        = var.server_location
+  server_type     = var.nodes[count.index].server_type
+  location        = var.nodes[count.index].location
   image           = var.server_image
 }
 
 resource "local_sensitive_file" "ansible_inventory" {
   content = templatefile("${path.module}/../../templates/ansible-inventory.tftpl", {
     hosts = [
-      for h in module.host : {
+      for i, h in module.host : {
         name = h.name
         ip   = h.ipv4_address
         fqdn = h.fqdn
+        role = var.nodes[i].role
       }
     ]
   })
-  filename = "${path.module}/../../../02-os-bootstrap/inventory.ini"
+  filename = "${path.module}/../../../02-bootstrap/inventory.ini"
 }
 
 module "service_dns_name" {
@@ -56,7 +75,7 @@ module "service_dns_name" {
   dns_zone_id   = local.dns_zone_id
   dns_zone_name = local.dns_zone_name
   dns_name      = local.service_dns_name
-  target_ips    = { for k, v in module.host : k => v.ipv4_address }
+  target_ips = { for i, h in module.host : i => h.ipv4_address if var.nodes[i].role == "agent" }
   proxied       = true
   environment   = var.environment
 }

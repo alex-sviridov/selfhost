@@ -7,6 +7,10 @@ terraform {
       version = "~> 1.4"
     }
 
+    tailscale = {
+      source = "tailscale/tailscale"
+    }
+
     hcloud = {
       source  = "hetznercloud/hcloud"
       version = "~> 1.45"
@@ -31,4 +35,8 @@ provider "hcloud" {
 
 provider "cloudflare" {
   api_token = ephemeral.sops_file.secrets.data["cloudflare_api_token"]
+}
+
+provider "tailscale" {
+  api_key = ephemeral.sops_file.secrets.data["tailscale_api_token"]
 }
