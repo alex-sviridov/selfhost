@@ -2,48 +2,6 @@ locals {
   node_fqdn = "${var.dns_name}.${var.dns_zone_name}"
 }
 
-resource "hcloud_firewall" "node" {
-  name = "${var.name}-fw"
-  rule {
-    direction  = "in"
-    protocol   = "icmp"
-    source_ips = var.allowed_ssh_ips
-  }
-
-  # SSH
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "22"
-    source_ips = var.allowed_ssh_ips
-  }
-
-  # K3S
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "6443"
-    source_ips = var.allowed_ssh_ips
-  }
-
-  # USER ACCESS ALLOWED
-  # TODO: Limit to Cloudflare hosts #33
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "80"
-    source_ips = ["0.0.0.0/0", "::/0"]
-  }
-
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "443"
-    source_ips = ["0.0.0.0/0", "::/0"]
-  }
-
-}
-
 resource "hcloud_server_network" "node" {
   server_id  = hcloud_server.node.id
   network_id = var.network_id
@@ -67,8 +25,6 @@ resource "hcloud_server" "node" {
   image       = var.image
   location    = var.location
   ssh_keys    = var.ssh_key_ids 
-
-  firewall_ids = [hcloud_firewall.node.id]
 
   public_net {
     ipv4_enabled = true

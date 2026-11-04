@@ -15,6 +15,11 @@ locals {
   dns_zone_name    = data.sops_file.shared.data["DNS_ZONE_NAME"]
   dns_zone_id      = data.sops_file.shared.data["DNS_ZONE_ID"]
   service_dns_name = data.sops_file.shared.data["SERVICE_DNS_NAME"]
+  
+  cloudflare_ips = concat(
+    data.cloudflare_ip_ranges.cf.ipv4_cidr_blocks,
+    data.cloudflare_ip_ranges.cf.ipv6_cidr_blocks,
+  )
 }
 
 resource "random_pet" "server_name" {
@@ -50,6 +55,31 @@ resource "hcloud_network_subnet" "nodes" {
   ip_range     = "10.0.1.0/24"
 }
 
+data "cloudflare_ip_ranges" "cf" {}
+
+resource "hcloud_firewall" "nodes" {
+  name = "${var.environment}-nodes"
+
+  # HTTP/HTTPS only from Cloudflare
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "80"
+    source_ips = local.cloudflare_ips
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "443"
+    source_ips = local.cloudflare_ips
+  }
+
+  apply_to {
+    label_selector = "project=selfhost,env=${var.environment}"
+  }
+}
+
 module "host" {
   count           = length(var.nodes)
   source          = "../../modules/node"
@@ -58,8 +88,7 @@ module "host" {
   environment     = var.environment
   ssh_public_keys = local.ssh_public_keys
   ssh_key_ids     = hcloud_ssh_key.admin[*].id
-  allowed_ssh_ips = local.allowed_ssh_ips
-  network_id = hcloud_network_subnet.nodes.network_id
+  network_id      = hcloud_network_subnet.nodes.network_id
   tailscale_auth_key = tailscale_tailnet_key.node[count.index].key
   dns_zone_id     = local.dns_zone_id
   dns_zone_name   = local.dns_zone_name

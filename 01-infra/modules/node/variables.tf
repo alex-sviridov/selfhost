@@ -55,15 +55,6 @@ variable "ssh_key_ids" {
   type = list(string)
 }
 
-variable "allowed_ssh_ips" {
-  description = "CIDRs allowed to reach SSH. Restrict to your IP."
-  type        = list(string)
-  default = [
-    "0.0.0.0/0",
-    "::/0"
-  ]
-}
-
 variable "dns_zone_id" {
   description = "Cloudflare Zone ID for the infrastructure DNS zone (e.g. srv.example.com)"
   type        = string
