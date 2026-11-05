@@ -7,3 +7,6 @@
   ansible.builtin.systemd:
     name: fail2ban
     state: restarted
+
+- name: Reload firewalld
+  ansible.builtin.command: firewall-cmd --reload

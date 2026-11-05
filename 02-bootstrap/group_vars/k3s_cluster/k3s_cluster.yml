@@ -13,6 +13,7 @@ extra_server_args: >-
   --node-ip={{ private_ip }}
   --node-external-ip={{ ansible_default_ipv4.address }}
   --flannel-iface={{ private_iface }}
+  --advertise-address={{ private_ip }}
   --tls-san={{ ansible_host }}
   --tls-san={{ ansible_tailscale0.ipv4.address }}
 extra_agent_args: >-

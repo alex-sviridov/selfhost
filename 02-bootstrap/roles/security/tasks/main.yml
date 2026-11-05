@@ -1,31 +1,10 @@
 ---
 - name: Install security packages
   ansible.builtin.dnf:
-    name: 
-      - fail2ban
+    name:
       - firewalld
+      - dnf-automatic
     state: present
-
-- name: Configure fail2ban
-  ansible.builtin.copy:
-    dest: /etc/fail2ban/jail.local
-    mode: '0644'
-    content: |
-      [DEFAULT]
-      bantime  = 1h
-      findtime = 10m
-      maxretry = 5
-      backend  = systemd
-
-      [sshd]
-      enabled = true
-  notify: Restart fail2ban
-
-- name: Enable fail2ban service
-  ansible.builtin.systemd:
-    name: fail2ban
-    state: started
-    enabled: true
 
 - name: Ensure firewalld is running and enabled
   ansible.builtin.systemd:
@@ -33,30 +12,46 @@
     state: started
     enabled: true
 
-- name: Configure base Firewalld ports (SSH, HTTP, HTTPS, K8S)
-  ansible.posix.firewalld:
-    port: "{{ item }}"
-    permanent: true
-    immediate: true
-    state: enabled
-    zone: public
-  loop:
-    - 22/tcp
-    - 80/tcp
-    - 443/tcp
-    - 6443/tcp
-
-- name: Apply SSH Hardening config
+- name: Public zone allows only HTTP/HTTPS
   ansible.builtin.copy:
-    dest: /etc/ssh/sshd_config.d/99-rootenv-hardening.conf
+    dest: /etc/firewalld/zones/public.xml
+    mode: '0644'
+    content: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <zone>
+        <short>Public</short>
+        <port protocol="tcp" port="80"/>
+        <port protocol="tcp" port="443"/>
+      </zone>
+  notify: Reload firewalld
+
+- name: Trusted zone for private, k3s and Tailscale traffic
+  ansible.builtin.copy:
+    dest: /etc/firewalld/zones/trusted.xml
+    mode: '0644'
+    content: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <zone target="ACCEPT">
+        <short>Trusted</short>
+        <interface name="tailscale0"/>
+        <source address="10.0.0.0/16"/>
+        <source address="10.42.0.0/16"/>
+        <source address="10.43.0.0/16"/>
+      </zone>
+  notify: Reload firewalld
+
+- name: Apply SSH hardening config
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-hardening.conf
     owner: root
     group: root
     mode: '0600'
+    validate: /usr/sbin/sshd -t -f %s
     content: |
       PasswordAuthentication no
       PermitEmptyPasswords no
       KbdInteractiveAuthentication no
-      PermitRootLogin prohibit-password
+      PermitRootLogin no
       MaxAuthTries 3
       LoginGraceTime 30
       AllowTcpForwarding yes
@@ -70,3 +65,19 @@
       ClientAliveCountMax 2
       AllowUsers admin
   notify: Restart sshd
+
+- name: Configure automatic security updates
+  community.general.ini_file:
+    path: /etc/dnf/automatic.conf
+    section: commands
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  loop:
+    - { key: upgrade_type, value: security }
+    - { key: apply_updates, value: "yes" }
+
+- name: Enable automatic updates timer
+  ansible.builtin.systemd:
+    name: dnf-automatic.timer
+    state: started
+    enabled: true
