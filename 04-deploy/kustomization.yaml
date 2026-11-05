@@ -8,3 +8,4 @@ resources:
   - releases/taskframe
   - releases/readtrail
   - releases/lexilearn
+  - releases/workbox.yaml
