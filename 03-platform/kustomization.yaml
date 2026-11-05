@@ -6,3 +6,4 @@ resources:
   - releases/externaldns
   - releases/oauth2
   - releases/velero
+  - releases/agent-sandbox
