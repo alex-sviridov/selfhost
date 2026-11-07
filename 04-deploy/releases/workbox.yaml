@@ -55,7 +55,7 @@ spec:
             - { name: tmp,  mountPath: /tmp }
       volumes:
         - name: tmp
-          emptyDir: { sizeLimit: 100Mi }
+          emptyDir: { sizeLimit: 500Mi }
   volumeClaimTemplates:
     - metadata:
         name: home             # /home/node: Claude login, settings, user-installed tools
