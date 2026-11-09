@@ -7,3 +7,4 @@ resources:
   - releases/oauth2
   - releases/velero
   - releases/agent-sandbox
+  - releases/monitoring
